@@ -1,7 +1,5 @@
 # moonbitlings Roadmap（路线图）
 
-对照 Rustlings 的演进路线，按优先级分阶段推进；不标注时间，只标注阶段、优先级与验收标准。
-
 ## 定位
 
 MoonBit 生态的 Rustlings 式离线交互练习工具：一组渐进式练习 + 本地 CLI
