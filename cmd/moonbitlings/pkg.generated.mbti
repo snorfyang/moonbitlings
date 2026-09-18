@@ -1,0 +1,20 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "snorfyang/moonbitlings/cmd/moonbitlings"
+
+// Values
+pub fn parse_command(Array[String]) -> Result[Command, String]
+
+// Errors
+
+// Types and methods
+pub enum Command {
+  List
+  Verify(String)
+  Hint(String)
+  Watch(String?)
+  Help
+}
+
+// Type aliases
+
+// Traits

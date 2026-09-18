@@ -1,0 +1,10 @@
+// moonbitlings core library.
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/debug",
+  "moonbitlang/async/process",
+}
+
+import {
+  "moonbitlang/async",
+} for "test"

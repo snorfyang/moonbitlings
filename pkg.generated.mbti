@@ -1,0 +1,66 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "snorfyang/moonbitlings"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn current_index(Manifest, State) -> Int?
+
+pub fn exercise_dir(String) -> String
+
+pub fn kind_command(ExerciseKind) -> String
+
+pub fn parse_manifest(String) -> Result[Manifest, String]
+
+pub fn parse_state(String) -> Result[State, String]
+
+pub fn passed(VerifierResult) -> Bool
+
+pub fn render_hint(Exercise) -> String
+
+pub fn render_list(Manifest, State) -> String
+
+pub fn render_verify_result(Exercise, VerifierResult) -> String
+
+pub async fn run_moon(ExerciseKind, String) -> VerifierResult
+
+// Errors
+
+// Types and methods
+pub(all) struct Exercise {
+  id : String
+  title : String
+  hint : String
+  kind : ExerciseKind
+}
+
+pub(all) enum ExerciseKind {
+  Check
+  Test
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Manifest {
+  exercises : Array[Exercise]
+}
+pub fn Manifest::find(Self, String) -> Exercise?
+pub fn Manifest::index_of(Self, String) -> Int?
+
+pub(all) struct State {
+  done : Array[String]
+}
+pub fn State::empty() -> Self
+pub fn State::is_done(Self, String) -> Bool
+pub fn State::mark_done(Self, String) -> Self
+pub fn State::to_json(Self) -> String
+
+pub(all) struct VerifierResult {
+  exit_code : Int
+  stdout : String
+  stderr : String
+}
+
+// Type aliases
+
+// Traits

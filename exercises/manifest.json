@@ -1,0 +1,16 @@
+{
+  "exercises": [
+    {
+      "id": "01_hello",
+      "title": "Hello: fix the type error",
+      "hint": "The function is declared to return Int, but the body returns a String. Replace the string with an integer literal.",
+      "kind": "check"
+    },
+    {
+      "id": "02_add",
+      "title": "Add: make the test pass",
+      "hint": "Implement `add` so that `add(2, 3)` returns 5.",
+      "kind": "test"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+///|
+fn exercise(id : String, title : String, kind : ExerciseKind) -> Exercise {
+  { id, title, hint: "hint for \{id}", kind, }
+}
+
+///|
+test "parse a valid manifest" {
+  let text =
+    #|{"exercises":[{"id":"01_hello","title":"Hello","hint":"h","kind":"check"},{"id":"02_add","title":"Add","hint":"h2","kind":"test"}]}
+  let manifest = match parse_manifest(text) {
+    Ok(manifest) => manifest
+    Err(message) => fail(message)
+  }
+  assert_eq(manifest.exercises.length(), 2)
+  assert_eq(manifest.exercises[0].id, "01_hello")
+  assert_eq(manifest.exercises[0].title, "Hello")
+  assert_eq(manifest.exercises[0].kind, Check)
+  assert_eq(manifest.exercises[1].kind, Test)
+}
+
+///|
+test "parse rejects invalid JSON" {
+  assert_true(parse_manifest("not json") is Err(_))
+}
+
+///|
+test "parse rejects a non-object root" {
+  assert_true(parse_manifest("[1,2]") is Err(_))
+}
+
+///|
+test "parse rejects a missing kind" {
+  let text =
+    #|{"exercises":[{"id":"a","title":"A","hint":"h"}]}
+  assert_true(parse_manifest(text) is Err(_))
+}
+
+///|
+test "parse rejects an unknown kind" {
+  let text =
+    #|{"exercises":[{"id":"a","title":"A","hint":"h","kind":"bogus"}]}
+  assert_true(parse_manifest(text) is Err(_))
+}
+
+///|
+test "find and index_of" {
+  let exercises : Array[Exercise] = [
+    exercise("a", "A", Check),
+    exercise("b", "B", Test),
+  ]
+  let manifest : Manifest = { exercises, }
+  match manifest.find("b") {
+    Some(found) => assert_eq(found.id, "b")
+    None => fail("expected to find exercise b")
+  }
+  assert_eq(manifest.index_of("a"), Some(0))
+  assert_eq(manifest.index_of("zzz"), None)
+}
+
+///|
+test "exercise_dir uses the id" {
+  assert_eq(exercise_dir("01_hello"), "exercises/01_hello")
+}
