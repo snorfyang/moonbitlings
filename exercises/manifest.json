@@ -11,6 +11,66 @@
       "title": "Add: make the test pass",
       "hint": "Implement `add` so that `add(2, 3)` returns 5.",
       "kind": "test"
+    },
+    {
+      "id": "03_sum_to",
+      "title": "Sum to n: a loop",
+      "hint": "Use a `for i = 1; i <= n; i = i + 1` loop and a mutable `total` that accumulates each `i`.",
+      "kind": "test"
+    },
+    {
+      "id": "04_factorial",
+      "title": "Factorial: recursion",
+      "hint": "Return `1` when `n <= 1`, otherwise `n * factorial(n - 1)`.",
+      "kind": "test"
+    },
+    {
+      "id": "05_rect_area",
+      "title": "Rectangle area: structs",
+      "hint": "The area is `rect.width * rect.height`.",
+      "kind": "test"
+    },
+    {
+      "id": "06_shape_area",
+      "title": "Shape area: enums and match",
+      "hint": "Match on `Circle(r)` and `Square(s)`. Use `3 * r * r` for the circle (a stand-in for pi) and `s * s` for the square.",
+      "kind": "test"
+    },
+    {
+      "id": "07_describe_option",
+      "title": "Describe an option: Option and match",
+      "hint": "Match on `Some(value)` and `None`. For `Some` return `\"some: \\{value}\"`.",
+      "kind": "test"
+    },
+    {
+      "id": "08_safe_divide",
+      "title": "Safe divide: error handling",
+      "hint": "Return `Err(\"division by zero\")` when `b == 0`, otherwise `Ok(a / b)`.",
+      "kind": "test"
+    },
+    {
+      "id": "09_maximum",
+      "title": "Maximum: generics",
+      "hint": "Return `a` when `a > b`, otherwise `b`. The `Compare` bound already lets you use `>`.",
+      "kind": "test"
+    },
+    {
+      "id": "10_speak",
+      "title": "Speak: traits",
+      "hint": "Make `Dog::speak` return \"woof\" and `Cat::speak` return \"meow\".",
+      "kind": "test"
+    },
+    {
+      "id": "11_map",
+      "title": "Map: higher-order functions",
+      "hint": "Build a fresh array, iterate over `arr`, and push `f(x)` for each element.",
+      "kind": "test"
+    },
+    {
+      "id": "12_count_even",
+      "title": "Count evens: an array loop",
+      "hint": "Iterate over `arr` and count elements where `x % 2 == 0`.",
+      "kind": "test"
     }
   ]
 }

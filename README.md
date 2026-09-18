@@ -9,8 +9,8 @@ an expected compile error). You fix the code until `moon check`/`moon test`
 passes, then move on. The CLI provides `list`, `verify`, `hint`, and `watch`
 commands and tracks progress in a local state file.
 
-> Status: working prototype. The CLI and two exercises run end to end; the
-> curriculum is intentionally tiny and will grow.
+> Status: working prototype. The CLI and a 12-exercise curriculum run end to
+> end; the curriculum will keep growing.
 
 ## Usage
 
@@ -59,8 +59,9 @@ test_fixtures/            small passing/failing fixtures used by tests
 ## Features
 
 - `list`, `verify <id>`, `hint <id>`, `watch [id]` commands;
-- a progressive curriculum covering (so far) expressions and functions, with
-  more language features to come;
+- a progressive curriculum covering expressions, functions, loops, recursion,
+  structs, enums, pattern matching, `Option`, error handling, generics, traits,
+  higher-order functions, and array iteration;
 - deterministic, offline operation — no network required;
 - explicit errors for an unknown exercise, a malformed manifest, or a broken
   state file.
