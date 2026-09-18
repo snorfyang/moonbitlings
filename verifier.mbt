@@ -21,22 +21,27 @@ pub fn kind_command(kind : ExerciseKind) -> String {
 /// This is the only place the CLI shells out to the toolchain. Everything else
 /// interprets an already-computed `VerifierResult`, so the interpretation can be
 /// tested with fabricated results and no toolchain.
+///
+/// Standard output and standard error are drained concurrently while the
+/// process runs, so a verbose `moon` cannot deadlock on a full pipe buffer.
 pub async fn run_moon(kind : ExerciseKind, dir : String) -> VerifierResult {
   let command = kind_command(kind)
   let (out_r, out_w) = @process.read_from_process()
   let (err_r, err_w) = @process.read_from_process()
-  defer out_r.close()
-  defer err_r.close()
-  let exit_code = @process.run(
-    "moon",
-    [command],
-    stdout=out_w,
-    stderr=err_w,
-    cwd=dir,
-  )
-  let stdout = out_r.read_all().text()
-  let stderr = err_r.read_all().text()
-  { exit_code, stdout, stderr, }
+  @async.with_task_group() <| group => {
+    defer out_r.close()
+    defer err_r.close()
+    let exit_code = group.spawn(() => {
+      @process.run("moon", [command], stdout=out_w, stderr=err_w, cwd=dir)
+    })
+    let stdout = group.spawn(() => out_r.read_all().text())
+    let stderr = group.spawn(() => err_r.read_all().text())
+    {
+      exit_code: exit_code.wait(),
+      stdout: stdout.wait(),
+      stderr: stderr.wait(),
+    }
+  }
 }
 
 ///|

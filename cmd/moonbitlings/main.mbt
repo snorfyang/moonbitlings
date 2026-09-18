@@ -126,8 +126,13 @@ async fn load_state(path : String) -> Result[@lib.State, String] {
 }
 
 ///|
-async fn save_state(path : String, state : @lib.State) -> Unit {
-  @fs.write_file(path, state.to_json())
+async fn save_state(path : String, state : @lib.State) -> Result[Unit, String] {
+  try {
+    @fs.write_file(path, state.to_json())
+    Ok(())
+  } catch {
+    err => Err("cannot write state file: \{err}")
+  }
 }
 
 ///|
@@ -165,8 +170,13 @@ async fn run_verify(
       let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
       emit(@lib.render_verify_result(exercise, result))
       if @lib.passed(result) {
-        save_state(state_path, state.mark_done(exercise.id))
-        0
+        match save_state(state_path, state.mark_done(exercise.id)) {
+          Ok(_) => 0
+          Err(message) => {
+            emit("warning: \{message}")
+            0
+          }
+        }
       } else {
         1
       }
@@ -213,8 +223,13 @@ async fn run_watch(
       }
       if @lib.passed(result) {
         state = state.mark_done(exercise.id)
-        save_state(state_path, state)
-        done = true
+        match save_state(state_path, state) {
+          Ok(_) => done = true
+          Err(message) => {
+            emit("error: \{message}")
+            return 2
+          }
+        }
       } else {
         // Wait for the exercise sources to change, then re-verify.
         let signature = exercise_signature(dir)

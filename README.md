@@ -75,3 +75,14 @@ is not affiliated with the MoonBit team or with Rustlings.
 ## License
 
 Apache-2.0.
+
+## Development
+
+```bash
+moon fmt --check
+moon check --deny-warn
+moon test --deny-warn
+moon info
+git diff --check
+scripts/cli_blackbox.sh   # process-level blackbox checks for the CLI
+```
