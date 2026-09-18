@@ -11,9 +11,19 @@ cd "$(dirname "$0")/.."
 
 moon build cmd/moonbitlings --target native >/dev/null
 
-EXE="_build/native/debug/build/cmd/moonbitlings/moonbitlings.exe"
-if [[ ! -x "$EXE" ]]; then
-  echo "error: built executable not found at $EXE" >&2
+# The native executable name carries a `.exe` suffix on some platforms and not
+# on others; locate it rather than assuming one name.
+EXE=""
+for candidate in \
+  _build/native/debug/build/cmd/moonbitlings/moonbitlings.exe \
+  _build/native/debug/build/cmd/moonbitlings/moonbitlings; do
+  if [[ -x "$candidate" ]]; then
+    EXE="$candidate"
+    break
+  fi
+done
+if [[ -z "$EXE" ]]; then
+  echo "error: built executable not found under _build/native/debug/build" >&2
   exit 1
 fi
 

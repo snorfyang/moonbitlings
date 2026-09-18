@@ -44,6 +44,19 @@ Each exercise lives in `exercises/<id>/`. Edit its source, then re-run
 - Exercise metadata is versioned, human-editable JSON in
   `exercises/manifest.json`.
 
+## Progress state
+
+Progress is stored in `.moonbitlings-state.json` at the repository root:
+
+```json
+{ "version": 1, "done": ["01_hello", "02_add"] }
+```
+
+The `version` field guards the format. A corrupt file or an unsupported
+version is reported as an error rather than guessed at. Progress is
+reconstructible, so deleting the file simply resets progress — the exercises
+are unaffected.
+
 ## Project layout
 
 ```
@@ -73,6 +86,14 @@ official toolchain, manage packages or credentials, or claim that completing
 the exercises proves language mastery. It is an independent community tool and
 is not affiliated with the MoonBit team or with Rustlings.
 
+## Related projects
+
+moonbitlings complements the official
+[moonbit/MPI-exercise](https://github.com/moonbit/MPI-exercise) course
+exercises rather than duplicating them: those are plain `moon test` suites,
+while moonbitlings adds the interactive CLI, hints, and progress tracking. All
+moonbitlings exercises are original.
+
 ## License
 
 Apache-2.0.
@@ -87,3 +108,9 @@ moon info
 git diff --check
 scripts/cli_blackbox.sh   # process-level blackbox checks for the CLI
 ```
+
+## Releasing
+
+1. Run the full Development check suite.
+2. Bump `version` in `moon.mod`.
+3. Tag the release and push it to the configured remote.

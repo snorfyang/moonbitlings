@@ -233,11 +233,13 @@ async fn run_watch(
       } else {
         // Wait for the exercise sources to change, then re-verify.
         let signature = exercise_signature(dir)
-        let mut next = exercise_signature(dir)
+        let mut next = signature
         while next == signature {
           @async.sleep(200)
           next = exercise_signature(dir)
         }
+        // Debounce: let the editor finish writing before re-running.
+        @async.sleep(300)
         result = @lib.run_moon(exercise.kind, dir)
       }
     }

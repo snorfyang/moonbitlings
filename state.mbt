@@ -42,6 +42,16 @@ pub fn parse_state(text : String) -> Result[State, String] {
   guard json is Object(fields) else {
     return Err("state must be a JSON object")
   }
+  match fields.get("version") {
+    Some(Number(value, ..)) =>
+      if value != 1.0 {
+        return Err(
+          "unsupported state version; delete the state file to start over",
+        )
+      }
+    Some(_) => return Err("state.version must be a number")
+    None => return Err("state.version is required")
+  }
   let done = match fields.get("done") {
     Some(Array(items)) => {
       let ids : Array[String] = []
@@ -66,7 +76,10 @@ pub fn State::to_json(self : State) -> String {
   for id in self.done {
     done_json.push(Json::string(id))
   }
-  let map : Map[String, Json] = { "done": Json::array(done_json) }
+  let map : Map[String, Json] = {
+    "version": Json::number(1.0, repr="1"),
+    "done": Json::array(done_json),
+  }
   Json::object(map).stringify()
 }
 

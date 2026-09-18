@@ -16,7 +16,7 @@ test "mark_done records an id and is idempotent" {
 ///|
 test "parse_state reads done ids" {
   let text =
-    #|{"done":["01_hello","02_add"]}
+    #|{"version":1,"done":["01_hello","02_add"]}
   let state = match parse_state(text) {
     Ok(state) => state
     Err(message) => fail(message)
@@ -29,15 +29,23 @@ test "parse_state reads done ids" {
 ///|
 test "parse_state rejects malformed shapes" {
   assert_true(parse_state("not json") is Err(_))
-  assert_true(parse_state("{\"done\":\"nope\"}") is Err(_))
-  assert_true(parse_state("{\"done\":[1,2]}") is Err(_))
+  assert_true(parse_state("{\"version\":1,\"done\":\"nope\"}") is Err(_))
+  assert_true(parse_state("{\"version\":1,\"done\":[1,2]}") is Err(_))
   assert_true(parse_state("{}") is Err(_))
+}
+
+///|
+test "parse_state rejects a missing or unsupported version" {
+  assert_true(parse_state("{\"done\":[]}") is Err(_))
+  assert_true(parse_state("{\"version\":2,\"done\":[]}") is Err(_))
+  assert_true(parse_state("{\"version\":\"1\",\"done\":[]}") is Err(_))
 }
 
 ///|
 test "state round-trips through JSON" {
   let state = State::empty().mark_done("02_add").mark_done("01_hello")
   let text = state.to_json()
+  assert_true(text.contains("\"version\":1"))
   let parsed = match parse_state(text) {
     Ok(parsed) => parsed
     Err(message) => fail(message)

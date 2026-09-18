@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        uses: hustcer/setup-moonbit@v1
+        with:
+          version: latest
+
+      - name: Format
+        run: moon fmt --check
+
+      - name: Check
+        run: moon check --deny-warn
+
+      - name: Test
+        run: moon test --deny-warn
+
+      - name: Regenerate interfaces
+        run: moon info
+
+      - name: No uncommitted changes
+        run: git diff --exit-code
+
+      - name: Whitespace
+        run: git diff --check
+
+      - name: CLI blackbox
+        run: bash scripts/cli_blackbox.sh
