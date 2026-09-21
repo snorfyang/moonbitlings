@@ -19,6 +19,7 @@ Prerequisites: a MoonBit toolchain with `moon` on your `PATH`.
 ```bash
 git clone <this repository> && cd moonbitlings
 
+moon run cmd/moonbitlings --                      # start the interactive watch session
 moon run cmd/moonbitlings -- list                 # show all exercises and status
 moon run cmd/moonbitlings -- list --pending       # show pending exercises only
 moon run cmd/moonbitlings -- list --done          # show completed exercises only
@@ -28,8 +29,8 @@ moon run cmd/moonbitlings -- verify               # verify the next pending exer
 moon run cmd/moonbitlings -- run EXERCISE_ID       # run an executable exercise
 moon run cmd/moonbitlings -- reset 01_hello       # reset one exercise's progress
 moon run cmd/moonbitlings -- check-all            # verify every exercise
-moon run cmd/moonbitlings -- watch                # watch and advance through all
-moon run cmd/moonbitlings -- watch 02_add         # watch one exercise
+moon run cmd/moonbitlings -- watch                # explicitly start the watch session
+moon run cmd/moonbitlings -- watch 02_add         # start at a specific exercise
 ```
 
 Exit codes: `0` = the requested exercise(s) passed (or the command completed),
@@ -41,13 +42,19 @@ exercise. `watch` re-verifies automatically when you save a source file.
 `run [id]` invokes `moon run` for an executable exercise; `reset [id]` changes
 only progress state and never overwrites exercise source files.
 
+The watch session keeps the current exercise, source path, status, and progress
+visible. Enter `h`, `r`, `n`, `l`, `c`, or `q` followed by Enter to show a hint,
+recheck, move to the next exercise after success, list exercises, check all, or
+quit. A passing exercise remains current until you enter `n`.
+
 ## How it works
 
 - The verifier is the official toolchain. moonbitlings runs `moon check` (for
   `check` exercises) or `moon test` (for `test` exercises) in the exercise's
   own module directory — there is no compiler fork.
 - `watch` polls the exercise's `main.mbt`/`main_test.mbt` modification times
-  and re-verifies only when a source file changes.
+  and re-verifies when a source file changes. Input and source changes are
+  handled concurrently; closed standard input exits the session cleanly.
 - Progress is stored in `.moonbitlings-state.json` at the repository root,
   separate from the exercise sources.
 - Exercise metadata is versioned, human-editable JSON in
@@ -80,6 +87,7 @@ test_fixtures/            small passing/failing fixtures used by tests
 
 ## Features
 
+- an interactive watch session when invoked without a command;
 - `list [--pending|--done]`, `verify [id]`, `hint [id]`, `run [id]`,
   `reset [id]`, `check-all`, `watch [id]` commands;
 - a progressive curriculum covering expressions, functions, loops, recursion,

@@ -2,7 +2,10 @@ import {
   "snorfyang/moonbitlings" @lib,
   "moonbitlang/core/env",
   "moonbitlang/async",
+  "moonbitlang/async/aqueue",
   "moonbitlang/async/fs",
+  "moonbitlang/async/io",
+  "moonbitlang/async/stdio",
 }
 
 supported_targets = "+native"

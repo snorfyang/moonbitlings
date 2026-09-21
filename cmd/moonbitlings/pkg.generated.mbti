@@ -18,6 +18,10 @@ pub enum Command {
   Help
 }
 
+type WatchAction
+
+type WatchEvent
+
 // Type aliases
 
 // Traits

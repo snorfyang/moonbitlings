@@ -16,8 +16,25 @@ pub enum Command {
 }
 
 ///|
+enum WatchAction {
+  ShowHint
+  Recheck
+  Next
+  ShowList
+  CheckAllExercises
+  Quit
+  Unknown(String)
+}
+
+///|
+enum WatchEvent {
+  Input(String?)
+  SourceChanged(String)
+}
+
+///|
 let usage =
-  #|usage: moonbitlings <list [--pending|--done]|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id]>
+  #|usage: moonbitlings [list [--pending|--done]|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id]]
 
 ///|
 let manifest_path = "exercises/manifest.json"
@@ -28,10 +45,11 @@ let state_path = ".moonbitlings-state.json"
 ///|
 /// Parse the command line into a command.
 pub fn parse_command(args : Array[String]) -> Result[Command, String] {
-  if args.length() < 2 {
-    return Err(
-      "expected a command: list, verify, hint, run, reset, check-all, or watch",
-    )
+  if args.is_empty() {
+    return Err("cannot read command line")
+  }
+  if args.length() == 1 {
+    return Ok(Watch(None))
   }
   match args[1] {
     "list" =>
@@ -118,7 +136,7 @@ async fn main {
         Verify(id) => process_exit(run_verify(manifest, state, id))
         Run(id) => process_exit(run_exercise(manifest, state, id))
         Reset(id) => process_exit(run_reset(manifest, state, id))
-        CheckAll => process_exit(run_check_all(manifest, state))
+        CheckAll => process_exit(run_check_all(manifest))
         Watch(id) => process_exit(run_watch(manifest, state, id))
         Help => abort("unreachable")
       }
@@ -327,18 +345,16 @@ fn select_exercise(
 }
 
 ///|
-async fn run_check_all(manifest : @lib.Manifest, state : @lib.State) -> Int {
+async fn run_check_all(manifest : @lib.Manifest) -> Int {
   let mut verified = @lib.State::empty()
-  let mut updated = state
   for exercise in manifest.exercises {
     let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
     emit(@lib.render_verify_result(exercise, result))
     if @lib.passed(result) {
       verified = verified.mark_done(exercise.id)
-      updated = updated.mark_done(exercise.id)
     }
   }
-  match save_state(state_path, updated) {
+  match save_state(state_path, verified) {
     Err(message) => emit("warning: \{message}")
     Ok(_) => ()
   }
@@ -347,6 +363,140 @@ async fn run_check_all(manifest : @lib.Manifest, state : @lib.State) -> Int {
     None => 0
     Some(_) => 1
   }
+}
+
+///|
+fn parse_watch_action(line : String) -> WatchAction {
+  let action = line.trim().to_owned()
+  match action {
+    "h" | "hint" => ShowHint
+    "r" | "recheck" => Recheck
+    "n" | "next" => Next
+    "l" | "list" => ShowList
+    "c" | "check-all" => CheckAllExercises
+    "q" | "quit" => Quit
+    other => Unknown(other)
+  }
+}
+
+///|
+fn next_pending_index(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  start : Int,
+) -> Int? {
+  for index = start; index < manifest.exercises.length(); index = index + 1 {
+    if !state.is_done(manifest.exercises[index].id) {
+      return Some(index)
+    }
+  }
+  let end = if start < manifest.exercises.length() {
+    start
+  } else {
+    manifest.exercises.length()
+  }
+  for index = 0; index < end; index = index + 1 {
+    if !state.is_done(manifest.exercises[index].id) {
+      return Some(index)
+    }
+  }
+  None
+}
+
+///|
+fn render_watch_header(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  index : Int,
+  status : String,
+) -> String {
+  let mut done = 0
+  for exercise in manifest.exercises {
+    if state.is_done(exercise.id) {
+      done += 1
+    }
+  }
+  let exercise = manifest.exercises[index]
+  "moonbitlings — \{done}/\{manifest.exercises.length()} done\n\n" +
+  "Current: \{exercise.id} — \{exercise.title}\n" +
+  "File:    \{@lib.exercise_dir(exercise.id)}/main.mbt\n" +
+  "Status: \{status}"
+}
+
+///|
+fn render_watch_prompt(passed : Bool) -> String {
+  if passed {
+    "[h] hint  [r] recheck  [n] next  [l] list  [c] check all  [q] quit"
+  } else {
+    "[h] hint  [r] recheck  [l] list  [c] check all  [q] quit"
+  }
+}
+
+///|
+async fn read_watch_input(events : @aqueue.Queue[WatchEvent]) -> Unit {
+  try {
+    while @stdio.stdin.read_until("\n") is Some(line) {
+      events.put(Input(Some(line)))
+    }
+  } catch {
+    err if @async.is_cancellation_error(err) => raise err
+    _ => ()
+  }
+  events.put(Input(None))
+}
+
+///|
+async fn watch_source_changes(
+  events : @aqueue.Queue[WatchEvent],
+  watched_dir : Ref[String],
+) -> Unit {
+  let mut dir = watched_dir.val
+  let mut signature = exercise_signature(dir)
+  for ;; {
+    @async.sleep(200)
+    if watched_dir.val != dir {
+      dir = watched_dir.val
+      signature = exercise_signature(dir)
+      continue
+    }
+    let next = exercise_signature(dir)
+    if next != signature {
+      @async.sleep(300)
+      if watched_dir.val == dir {
+        signature = exercise_signature(dir)
+        events.put(SourceChanged(dir))
+      }
+    }
+  }
+}
+
+///|
+async fn verify_watch_exercise(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  index : Int,
+) -> Result[(@lib.State, Bool), String] {
+  let exercise = manifest.exercises[index]
+  emit("checking \{exercise.id}...")
+  let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
+  let did_pass = @lib.passed(result)
+  let was_done = state.is_done(exercise.id)
+  let state = if did_pass {
+    state.mark_done(exercise.id)
+  } else {
+    state.mark_pending(exercise.id)
+  }
+  if did_pass != was_done {
+    match save_state(state_path, state) {
+      Err(message) => return Err(message)
+      Ok(_) => ()
+    }
+  }
+  emit(@lib.render_verify_result(exercise, result))
+  let status = if did_pass { "passed" } else { "failing" }
+  emit(render_watch_header(manifest, state, index, status))
+  emit(render_watch_prompt(did_pass))
+  Ok((state, did_pass))
 }
 
 ///|
@@ -374,44 +524,110 @@ async fn run_watch(
         }
       }
   }
-  while index < manifest.exercises.length() {
-    let exercise = manifest.exercises[index]
-    let dir = @lib.exercise_dir(exercise.id)
-    let mut last_output = ""
-    let mut result = @lib.run_moon(exercise.kind, dir)
-    let mut done = false
-    while !done {
-      let rendered = @lib.render_verify_result(exercise, result)
-      if rendered != last_output {
-        emit(rendered)
-        last_output = rendered
+  let watched_dir = Ref(@lib.exercise_dir(manifest.exercises[index].id))
+  let events : @aqueue.Queue[WatchEvent] = @aqueue.Queue(kind=@aqueue.Unbounded)
+  @async.with_task_group <| group => {
+    group.spawn_bg(() => read_watch_input(events))
+    group.spawn_bg(() => watch_source_changes(events, watched_dir))
+    let initial = match verify_watch_exercise(manifest, state, index) {
+      Err(message) => {
+        emit("error: \{message}")
+        group.return_immediately(2)
+        (state, false)
       }
-      if @lib.passed(result) {
-        state = state.mark_done(exercise.id)
-        match save_state(state_path, state) {
-          Ok(_) => done = true
-          Err(message) => {
-            emit("error: \{message}")
-            return 2
+      Ok(value) => value
+    }
+    state = initial.0
+    let mut current_passed = initial.1
+    for ;; {
+      match events.get() {
+        Input(None) => group.return_immediately(0)
+        SourceChanged(dir) =>
+          if dir == watched_dir.val {
+            match verify_watch_exercise(manifest, state, index) {
+              Err(message) => {
+                emit("error: \{message}")
+                group.return_immediately(2)
+              }
+              Ok(value) => {
+                state = value.0
+                current_passed = value.1
+              }
+            }
           }
-        }
-      } else {
-        // Wait for the exercise sources to change, then re-verify.
-        let signature = exercise_signature(dir)
-        let mut next = signature
-        while next == signature {
-          @async.sleep(200)
-          next = exercise_signature(dir)
-        }
-        // Debounce: let the editor finish writing before re-running.
-        @async.sleep(300)
-        result = @lib.run_moon(exercise.kind, dir)
+        Input(Some(line)) =>
+          match parse_watch_action(line) {
+            ShowHint => {
+              emit(@lib.render_hint(manifest.exercises[index]))
+              emit(render_watch_prompt(current_passed))
+            }
+            Recheck =>
+              match verify_watch_exercise(manifest, state, index) {
+                Err(message) => {
+                  emit("error: \{message}")
+                  group.return_immediately(2)
+                }
+                Ok(value) => {
+                  state = value.0
+                  current_passed = value.1
+                }
+              }
+            Next => {
+              if !current_passed {
+                emit("finish the current exercise before moving on")
+                emit(render_watch_prompt(false))
+                continue
+              }
+              match next_pending_index(manifest, state, index + 1) {
+                None => {
+                  emit("all exercises are done 🎉")
+                  group.return_immediately(0)
+                }
+                Some(next_index) => {
+                  index = next_index
+                  watched_dir.val = @lib.exercise_dir(
+                    manifest.exercises[index].id,
+                  )
+                  match verify_watch_exercise(manifest, state, index) {
+                    Err(message) => {
+                      emit("error: \{message}")
+                      group.return_immediately(2)
+                    }
+                    Ok(value) => {
+                      state = value.0
+                      current_passed = value.1
+                    }
+                  }
+                }
+              }
+            }
+            ShowList => {
+              emit(@lib.render_list(manifest, state))
+              emit(render_watch_prompt(current_passed))
+            }
+            CheckAllExercises => {
+              ignore(run_check_all(manifest))
+              match load_state(state_path) {
+                Err(message) => {
+                  emit("error: \{message}")
+                  group.return_immediately(2)
+                }
+                Ok(updated) => state = updated
+              }
+              current_passed = state.is_done(manifest.exercises[index].id)
+              let status = if current_passed { "passed" } else { "failing" }
+              emit(render_watch_header(manifest, state, index, status))
+              emit(render_watch_prompt(current_passed))
+            }
+            Quit => group.return_immediately(0)
+            Unknown(action) => {
+              emit("unknown watch action \"\{action}\"")
+              emit(render_watch_prompt(current_passed))
+            }
+          }
       }
     }
-    index += 1
   }
-  emit("all exercises are done 🎉")
-  0
 }
 
 ///|

@@ -63,6 +63,37 @@ expect() {
   echo "ok: $desc"
 }
 
+# expect_input <desc> <expected_exit> <input> <needle> -- <args...>
+expect_input() {
+  local desc="$1"
+  shift
+  local expected="$1"
+  shift
+  local input="$1"
+  shift
+  local needle="$1"
+  shift
+  shift # consume "--"
+  local out code
+  set +e
+  out="$(printf '%s' "$input" | "$EXE" "$@" 2>&1)"
+  code=$?
+  set -e
+  if [[ "$code" -ne "$expected" ]]; then
+    echo "FAIL: $desc — expected exit $expected, got $code"
+    printf '%s\n' "$out" | sed 's/^/    /'
+    fail=$((fail + 1))
+    return
+  fi
+  if ! printf '%s' "$out" | grep -qF "$needle"; then
+    echo "FAIL: $desc — output missing \"$needle\""
+    printf '%s\n' "$out" | sed 's/^/    /'
+    fail=$((fail + 1))
+    return
+  fi
+  echo "ok: $desc"
+}
+
 expect "list shows both exercises pending" 0 --contains "[pending] 01_hello" -- list
 expect "list filters pending exercises" 0 --contains "[pending] 01_hello" -- list --pending
 expect "list accepts an empty done filter" 0 -- list --done
@@ -81,6 +112,9 @@ expect "run an unknown exercise" 2 --contains "unknown exercise" -- run nope
 expect "reset an unknown exercise" 2 --contains "unknown exercise" -- reset nope
 expect "list rejects an unknown option" 2 --contains "unknown list option" -- list --bogus
 expect "an unknown command" 2 -- bogus
+expect_input "default command starts watch" 0 $'q\n' "Current: 01_hello" --
+expect_input "watch exits cleanly on input EOF" 0 '' "Current: 01_hello" -- watch
+expect_input "watch keeps a failing exercise current" 0 $'n\nq\n' "finish the current exercise" -- watch
 
 # Pass path: fix an exercise, verify it passes, then restore the broken source
 # and the clean state on exit.
@@ -90,10 +124,27 @@ cp exercises/01_hello/moon.pkg "$TMP_DIR/moon.pkg"
 cp exercises/manifest.json "$TMP_DIR/manifest.json"
 trap 'cp "$TMP_DIR/main.mbt" exercises/01_hello/main.mbt; cp "$TMP_DIR/moon.pkg" exercises/01_hello/moon.pkg; cp "$TMP_DIR/manifest.json" exercises/manifest.json; rm -rf "$TMP_DIR"; rm -f .moonbitlings-state.json' EXIT
 
-printf '///\npub fn answer() -> Int {\n  42\n}\n' > exercises/01_hello/main.mbt
+set +e
+watch_out="$({
+  sleep 0.5
+  printf '///\npub fn answer() -> Int {\n  42\n}\n' > exercises/01_hello/main.mbt
+  sleep 1.2
+  printf 'q\n'
+} | "$EXE" watch 01_hello 2>&1)"
+watch_code=$?
+set -e
+if [[ "$watch_code" -ne 0 ]] || ! printf '%s' "$watch_out" | grep -qF "exercise 01_hello passed"; then
+  echo "FAIL: watch rechecks after a source change"
+  printf '%s\n' "$watch_out" | sed 's/^/    /'
+  fail=$((fail + 1))
+else
+  echo "ok: watch rechecks after a source change"
+fi
+
 expect "verify a fixed exercise passes" 0 --contains "passed" -- verify 01_hello
 expect "list marks the fixed exercise done" 0 --contains "[done] 01_hello" -- list
 expect "list filters done exercises" 0 --contains "[done] 01_hello" -- list --done
+expect_input "watch advances only after next" 0 $'n\nq\n' "checking 02_add" -- watch 01_hello
 expect "reset marks an exercise pending" 0 --contains "01_hello reset" -- reset 01_hello
 expect "list shows a reset exercise pending" 0 --contains "[pending] 01_hello" -- list
 
