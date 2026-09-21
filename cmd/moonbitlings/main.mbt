@@ -6,15 +6,16 @@ extern "c" fn process_exit(code : Int) = "exit"
 ///|
 pub enum Command {
   List
-  Verify(String)
-  Hint(String)
+  Verify(String?)
+  Hint(String?)
+  CheckAll
   Watch(String?)
   Help
 }
 
 ///|
 let usage =
-  #|usage: moonbitlings <list|verify <id>|hint <id>|watch [id]>
+  #|usage: moonbitlings <list|verify [id]|hint [id]|check-all|watch [id]>
 
 ///|
 let manifest_path = "exercises/manifest.json"
@@ -26,22 +27,23 @@ let state_path = ".moonbitlings-state.json"
 /// Parse the command line into a command.
 pub fn parse_command(args : Array[String]) -> Result[Command, String] {
   if args.length() < 2 {
-    return Err("expected a command: list, verify, hint, or watch")
+    return Err("expected a command: list, verify, hint, check-all, or watch")
   }
   match args[1] {
     "list" => Ok(List)
     "verify" =>
       if args.length() >= 3 {
-        Ok(Verify(args[2]))
+        Ok(Verify(Some(args[2])))
       } else {
-        Err("verify needs an exercise id")
+        Ok(Verify(None))
       }
     "hint" =>
       if args.length() >= 3 {
-        Ok(Hint(args[2]))
+        Ok(Hint(Some(args[2])))
       } else {
-        Err("hint needs an exercise id")
+        Ok(Hint(None))
       }
+    "check-all" => Ok(CheckAll)
     "watch" =>
       if args.length() >= 3 {
         Ok(Watch(Some(args[2])))
@@ -87,8 +89,9 @@ async fn main {
       }
       match command {
         List => process_exit(run_list(manifest, state))
-        Hint(id) => process_exit(run_hint(manifest, id))
+        Hint(id) => process_exit(run_hint(manifest, state, id))
         Verify(id) => process_exit(run_verify(manifest, state, id))
+        CheckAll => process_exit(run_check_all(manifest, state))
         Watch(id) => process_exit(run_watch(manifest, state, id))
         Help => abort("unreachable")
       }
@@ -142,13 +145,17 @@ fn run_list(manifest : @lib.Manifest, state : @lib.State) -> Int {
 }
 
 ///|
-fn run_hint(manifest : @lib.Manifest, id : String) -> Int {
-  match manifest.find(id) {
-    None => {
-      emit("error: unknown exercise \"\{id}\"")
+fn run_hint(manifest : @lib.Manifest, state : @lib.State, id : String?) -> Int {
+  match select_exercise(manifest, state, id) {
+    Err(message) => {
+      emit("error: \{message}")
       2
     }
-    Some(exercise) => {
+    Ok(None) => {
+      emit("all exercises are already done")
+      0
+    }
+    Ok(Some(exercise)) => {
       emit(@lib.render_hint(exercise))
       0
     }
@@ -159,14 +166,18 @@ fn run_hint(manifest : @lib.Manifest, id : String) -> Int {
 async fn run_verify(
   manifest : @lib.Manifest,
   state : @lib.State,
-  id : String,
+  id : String?,
 ) -> Int {
-  match manifest.find(id) {
-    None => {
-      emit("error: unknown exercise \"\{id}\"")
+  match select_exercise(manifest, state, id) {
+    Err(message) => {
+      emit("error: \{message}")
       2
     }
-    Some(exercise) => {
+    Ok(None) => {
+      emit("all exercises are already done")
+      0
+    }
+    Ok(Some(exercise)) => {
       let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
       emit(@lib.render_verify_result(exercise, result))
       if @lib.passed(result) {
@@ -181,6 +192,49 @@ async fn run_verify(
         1
       }
     }
+  }
+}
+
+///|
+fn select_exercise(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  id : String?,
+) -> Result[@lib.Exercise?, String] {
+  match id {
+    Some(id) =>
+      match manifest.find(id) {
+        Some(exercise) => Ok(Some(exercise))
+        None => Err("unknown exercise \"\{id}\"")
+      }
+    None =>
+      match @lib.current_index(manifest, state) {
+        Some(index) => Ok(Some(manifest.exercises[index]))
+        None => Ok(None)
+      }
+  }
+}
+
+///|
+async fn run_check_all(manifest : @lib.Manifest, state : @lib.State) -> Int {
+  let mut verified = @lib.State::empty()
+  let mut updated = state
+  for exercise in manifest.exercises {
+    let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
+    emit(@lib.render_verify_result(exercise, result))
+    if @lib.passed(result) {
+      verified = verified.mark_done(exercise.id)
+      updated = updated.mark_done(exercise.id)
+    }
+  }
+  match save_state(state_path, updated) {
+    Err(message) => emit("warning: \{message}")
+    Ok(_) => ()
+  }
+  emit(@lib.render_check_all_summary(manifest, verified))
+  match @lib.current_index(manifest, verified) {
+    None => 0
+    Some(_) => 1
   }
 }
 

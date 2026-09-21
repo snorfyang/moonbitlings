@@ -117,3 +117,21 @@ pub fn render_list(manifest : Manifest, state : State) -> String {
 pub fn render_hint(exercise : Exercise) -> String {
   "Hint for \{exercise.id}: \{exercise.hint}"
 }
+
+///|
+/// Renders the result summary for a complete verification run.
+pub fn render_check_all_summary(manifest : Manifest, state : State) -> String {
+  let total = manifest.exercises.length()
+  let mut done = 0
+  for exercise in manifest.exercises {
+    if state.is_done(exercise.id) {
+      done += 1
+    }
+  }
+  let pending = total - done
+  let summary = "\{done}/\{total} done\n\{pending}/\{total} pending"
+  match current_index(manifest, state) {
+    Some(index) => "\{summary}; first pending: \{manifest.exercises[index].id}"
+    None => summary
+  }
+}

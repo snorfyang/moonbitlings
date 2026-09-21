@@ -9,8 +9,9 @@ pub fn parse_command(Array[String]) -> Result[Command, String]
 // Types and methods
 pub enum Command {
   List
-  Verify(String)
-  Hint(String)
+  Verify(String?)
+  Hint(String?)
+  CheckAll
   Watch(String?)
   Help
 }

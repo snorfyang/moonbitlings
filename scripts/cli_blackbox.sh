@@ -68,18 +68,27 @@ expect "hint prints a hint" 0 --contains "Replace the string" -- hint 01_hello
 expect "--help prints usage" 0 --contains "usage:" -- --help
 expect "verify a broken check exercise" 1 -- verify 01_hello
 expect "verify a broken test exercise" 1 -- verify 02_add
+expect "verify without an id checks the next exercise" 1 -- verify
+expect "hint without an id shows the next exercise" 0 --contains "Hint for 01_hello" -- hint
+expect "check-all reports pending exercises" 1 --contains "pending; first pending: 01_hello" -- check-all
 expect "verify an unknown exercise" 2 --contains "unknown exercise" -- verify nope
 expect "an unknown command" 2 -- bogus
-expect "verify without an id" 2 -- verify
 
 # Pass path: fix an exercise, verify it passes, then restore the broken source
 # and the clean state on exit.
-cp exercises/01_hello/main.mbt /tmp/moonbitlings-01-main.mbt.bak
-trap 'mv /tmp/moonbitlings-01-main.mbt.bak exercises/01_hello/main.mbt; rm -f .moonbitlings-state.json' EXIT
+TMP_DIR="$(mktemp -d)"
+cp exercises/01_hello/main.mbt "$TMP_DIR/main.mbt"
+cp exercises/manifest.json "$TMP_DIR/manifest.json"
+trap 'cp "$TMP_DIR/main.mbt" exercises/01_hello/main.mbt; cp "$TMP_DIR/manifest.json" exercises/manifest.json; rm -rf "$TMP_DIR"; rm -f .moonbitlings-state.json' EXIT
 
 printf '///\npub fn answer() -> Int {\n  42\n}\n' > exercises/01_hello/main.mbt
 expect "verify a fixed exercise passes" 0 --contains "passed" -- verify 01_hello
 expect "list marks the fixed exercise done" 0 --contains "[done] 01_hello" -- list
+
+printf '{"exercises":[{"id":"01_hello","title":"Hello","hint":"hint","kind":"check"}]}\n' > exercises/manifest.json
+expect "check-all exits zero when all exercises pass" 0 --contains "1/1 done" -- check-all
+expect "verify without an id handles completion" 0 --contains "already done" -- verify
+expect "hint without an id handles completion" 0 --contains "already done" -- hint
 
 if [[ "$fail" -eq 0 ]]; then
   echo "all CLI blackbox checks passed"

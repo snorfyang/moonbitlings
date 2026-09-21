@@ -18,6 +18,8 @@ pub fn parse_state(String) -> Result[State, String]
 
 pub fn passed(VerifierResult) -> Bool
 
+pub fn render_check_all_summary(Manifest, State) -> String
+
 pub fn render_hint(Exercise) -> String
 
 pub fn render_list(Manifest, State) -> String

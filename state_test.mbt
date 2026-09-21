@@ -88,6 +88,23 @@ test "render_hint names the exercise" {
 }
 
 ///|
+test "render_check_all_summary reports the first pending exercise" {
+  let manifest = manifest_of(["a", "b", "c"])
+  let state = State::empty().mark_done("a")
+  assert_eq(
+    render_check_all_summary(manifest, state),
+    "1/3 done\n2/3 pending; first pending: b",
+  )
+}
+
+///|
+test "render_check_all_summary reports completion" {
+  let manifest = manifest_of(["a", "b"])
+  let state = State::empty().mark_done("a").mark_done("b")
+  assert_eq(render_check_all_summary(manifest, state), "2/2 done\n0/2 pending")
+}
+
+///|
 fn manifest_of(ids : Array[String]) -> Manifest {
   let exercises : Array[Exercise] = []
   for id in ids {

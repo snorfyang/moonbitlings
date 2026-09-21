@@ -6,8 +6,8 @@ Rustlings-style, offline, exercise-driven practice for the
 moonbitlings presents a fixed sequence of small exercises. Each exercise is a
 standalone MoonBit module with a fill-in-the-blank source file plus a test (or
 an expected compile error). You fix the code until `moon check`/`moon test`
-passes, then move on. The CLI provides `list`, `verify`, `hint`, and `watch`
-commands and tracks progress in a local state file.
+passes, then move on. The CLI provides `list`, `verify`, `hint`, `check-all`,
+and `watch` commands and tracks progress in a local state file.
 
 > Status: working prototype. The CLI and a 12-exercise curriculum run end to
 > end; the curriculum will keep growing.
@@ -22,15 +22,18 @@ git clone <this repository> && cd moonbitlings
 moon run cmd/moonbitlings -- list                 # show all exercises and status
 moon run cmd/moonbitlings -- hint 01_hello        # print a hint for an exercise
 moon run cmd/moonbitlings -- verify 01_hello      # run one exercise's check/test
+moon run cmd/moonbitlings -- verify               # verify the next pending exercise
+moon run cmd/moonbitlings -- check-all            # verify every exercise
 moon run cmd/moonbitlings -- watch                # watch and advance through all
 moon run cmd/moonbitlings -- watch 02_add         # watch one exercise
 ```
 
-Exit codes: `0` = the exercise passed (or the command completed), `1` = the
-exercise still fails, `2` = usage or input error.
+Exit codes: `0` = the requested exercise(s) passed (or the command completed),
+`1` = at least one requested exercise still fails, `2` = usage or input error.
 
 Each exercise lives in `exercises/<id>/`. Edit its source, then re-run
-`verify <id>`; `watch` re-verifies automatically when you save a source file.
+`verify [id]`; without an ID, `verify` and `hint` select the next pending
+exercise. `watch` re-verifies automatically when you save a source file.
 
 ## How it works
 
@@ -71,7 +74,7 @@ test_fixtures/            small passing/failing fixtures used by tests
 
 ## Features
 
-- `list`, `verify <id>`, `hint <id>`, `watch [id]` commands;
+- `list`, `verify [id]`, `hint [id]`, `check-all`, `watch [id]` commands;
 - a progressive curriculum covering expressions, functions, loops, recursion,
   structs, enums, pattern matching, `Option`, error handling, generics, traits,
   higher-order functions, and array iteration;
