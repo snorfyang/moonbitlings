@@ -1,5 +1,7 @@
 # moonbitlings
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 Rustlings-style, offline, exercise-driven practice for the
 [MoonBit](https://www.moonbitlang.com/) programming language.
 
