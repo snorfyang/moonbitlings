@@ -115,6 +115,7 @@ expect "reset an unknown exercise" 2 --contains "unknown exercise" -- reset nope
 expect "list rejects an unknown option" 2 --contains "unknown list option" -- list --bogus
 expect "an unknown command" 2 -- bogus
 expect_input "default command starts watch" 0 $'q\n' "Current: 01_hello" --
+expect_input "watch accepts --no-editor" 0 '' "Current: 01_hello" -- watch --no-editor
 expect_input "watch exits cleanly on input EOF" 0 '' "Current: 01_hello" -- watch
 expect_input "watch list selects another exercise" 0 $'l\nj\nc\nq\n' "checking 02_add" -- watch
 expect_input "watch resumes the selected exercise" 0 $'q\n' "Current: 02_add" -- watch

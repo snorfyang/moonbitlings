@@ -17,7 +17,7 @@ pub enum Command {
   Run(String?)
   Reset(String?)
   CheckAll
-  Watch(String?)
+  Watch(String?, Bool)
   Help
 }
 
@@ -56,8 +56,14 @@ enum WatchListResult {
 }
 
 ///|
+struct EditorCommand {
+  program : String
+  arguments : Array[String]
+}
+
+///|
 let usage =
-  #|usage: moonbitlings [list [--pending|--done]|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id]]
+  #|usage: moonbitlings [--no-editor|list [--pending|--done]|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id] [--no-editor]]
 
 ///|
 let manifest_path = "exercises/manifest.json"
@@ -72,9 +78,10 @@ pub fn parse_command(args : Array[String]) -> Result[Command, String] {
     return Err("cannot read command line")
   }
   if args.length() == 1 {
-    return Ok(Watch(None))
+    return Ok(Watch(None, false))
   }
   match args[1] {
+    "--no-editor" => parse_watch_options(args, 1)
     "list" =>
       if args.length() < 3 {
         Ok(List(@lib.All))
@@ -110,14 +117,91 @@ pub fn parse_command(args : Array[String]) -> Result[Command, String] {
         Ok(Reset(None))
       }
     "check-all" => Ok(CheckAll)
-    "watch" =>
-      if args.length() >= 3 {
-        Ok(Watch(Some(args[2])))
-      } else {
-        Ok(Watch(None))
-      }
+    "watch" => parse_watch_options(args, 2)
     "--help" | "-h" => Ok(Help)
     other => Err("unknown command \"\{other}\"")
+  }
+}
+
+///|
+fn parse_watch_options(
+  args : Array[String],
+  start : Int,
+) -> Result[Command, String] {
+  let mut id : String? = None
+  let mut no_editor = false
+  for index = start; index < args.length(); index = index + 1 {
+    match args[index] {
+      "--no-editor" => no_editor = true
+      value =>
+        if id is None {
+          id = Some(value)
+        } else {
+          return Err("unexpected watch argument \"\{value}\"")
+        }
+    }
+  }
+  Ok(Watch(id, no_editor))
+}
+
+///|
+fn build_editor_command(
+  edit_cmd : String?,
+  in_vscode : Bool,
+  path : String,
+) -> Result[EditorCommand?, String] {
+  match edit_cmd {
+    Some(value) => {
+      let parts : Array[String] = []
+      for part in value.trim().split(" ") {
+        if !part.is_empty() {
+          parts.push(part.to_owned())
+        }
+      }
+      if parts.is_empty() {
+        return Err("EDIT_CMD is empty")
+      }
+      let arguments : Array[String] = []
+      let mut has_file = false
+      for index = 1; index < parts.length(); index = index + 1 {
+        if parts[index].contains("{file}") {
+          has_file = true
+        }
+        arguments.push(parts[index].replace_all(old="{file}", new=path))
+      }
+      if !has_file {
+        arguments.push(path)
+      }
+      Ok(Some({ program: parts[0], arguments, }))
+    }
+    None =>
+      if in_vscode {
+        Ok(Some({ program: "code", arguments: ["--reuse-window", path], }))
+      } else {
+        Ok(None)
+      }
+  }
+}
+
+///|
+async fn maybe_open_editor(
+  id : String,
+  no_editor : Bool,
+  interactive : Bool,
+) -> Unit {
+  if no_editor || !interactive {
+    return
+  }
+  let in_vscode = @env.get_env_var("TERM_PROGRAM") == Some("vscode") ||
+    @env.get_env_var("VSCODE_PID") is Some(_)
+  let path = "\{@lib.exercise_dir(id)}/main.mbt"
+  match build_editor_command(@env.get_env_var("EDIT_CMD"), in_vscode, path) {
+    Err(message) => emit("warning: cannot open editor: \{message}")
+    Ok(None) => ()
+    Ok(Some(command)) =>
+      ignore(@process.spawn_orphan(command.program, command.arguments)) catch {
+        err => emit("warning: cannot open editor: \{err}")
+      }
   }
 }
 
@@ -160,7 +244,8 @@ async fn main {
         Run(id) => process_exit(run_exercise(manifest, state, id))
         Reset(id) => process_exit(run_reset(manifest, state, id))
         CheckAll => process_exit(run_check_all(manifest, state))
-        Watch(id) => process_exit(run_watch(manifest, state, id))
+        Watch(id, no_editor) =>
+          process_exit(run_watch(manifest, state, id, no_editor))
         Help => abort("unreachable")
       }
     }
@@ -667,6 +752,7 @@ async fn run_watch(
   manifest : @lib.Manifest,
   state : @lib.State,
   start_id : String?,
+  no_editor : Bool,
 ) -> Int {
   let mut state = state
   let mut index = match start_id {
@@ -691,6 +777,7 @@ async fn run_watch(
   let events : @aqueue.Queue[WatchEvent] = @aqueue.Queue(kind=@aqueue.Unbounded)
   let raw_input = enable_raw_input() == 1
   defer restore_input()
+  maybe_open_editor(manifest.exercises[index].id, no_editor, raw_input)
   @async.with_task_group <| group => {
     group.spawn_bg(() => read_watch_input(events, raw_input))
     group.spawn_bg(() => watch_source_changes(events, watched_dir))
@@ -753,6 +840,11 @@ async fn run_watch(
                   watched_dir.val = @lib.exercise_dir(
                     manifest.exercises[index].id,
                   )
+                  maybe_open_editor(
+                    manifest.exercises[index].id,
+                    no_editor,
+                    raw_input,
+                  )
                   match verify_watch_exercise(manifest, state, index) {
                     Err(message) => {
                       emit("error: \{message}")
@@ -773,6 +865,11 @@ async fn run_watch(
                   index = selected
                   watched_dir.val = @lib.exercise_dir(
                     manifest.exercises[index].id,
+                  )
+                  maybe_open_editor(
+                    manifest.exercises[index].id,
+                    no_editor,
+                    raw_input,
                   )
                 }
                 Returned => ()

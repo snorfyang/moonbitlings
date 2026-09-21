@@ -51,13 +51,19 @@ def main() -> int:
             os.dup2(slave, fd)
         if slave > 2:
             os.close(slave)
-        os.execv(executable, [executable, "watch"])
+        environment = os.environ.copy()
+        environment["EDIT_CMD"] = "/bin/echo editor-open {file}"
+        os.execve(executable, [executable, "watch"], environment)
 
     os.close(slave)
     output = wait_for(master, b"", b"[q] quit", 10)
     if b"[q] quit" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not reach its prompt", file=sys.stderr)
+        return 1
+    if b"editor-open exercises/01_hello/main.mbt" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch did not open the current exercise", file=sys.stderr)
         return 1
 
     os.write(master, b"l")
@@ -73,6 +79,13 @@ def main() -> int:
     if b"Current: 02_add" not in output:
         stop_child(pid)
         print("FAIL: TTY watch list did not select with Enter", file=sys.stderr)
+        return 1
+    output = wait_for(
+        master, output, b"editor-open exercises/02_add/main.mbt", 2
+    )
+    if b"editor-open exercises/02_add/main.mbt" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch did not open the selected exercise", file=sys.stderr)
         return 1
 
     os.write(master, b"q")
@@ -100,7 +113,10 @@ def main() -> int:
         return 1
 
     os.close(master)
-    print("ok: TTY watch navigates with single keys and restores terminal flags")
+    print(
+        "ok: TTY watch opens exercises, navigates with single keys, "
+        "and restores terminal flags"
+    )
     return 0
 
 

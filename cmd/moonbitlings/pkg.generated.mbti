@@ -14,9 +14,11 @@ pub enum Command {
   Run(String?)
   Reset(String?)
   CheckAll
-  Watch(String?)
+  Watch(String?, Bool)
   Help
 }
+
+type EditorCommand
 
 type WatchAction
 

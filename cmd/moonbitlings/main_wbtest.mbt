@@ -29,13 +29,22 @@ test "parse_command selects each command" {
   )
   assert_true(parse_command(["moonbitlings", "reset"]) is Ok(Reset(None)))
   assert_true(parse_command(["moonbitlings", "check-all"]) is Ok(CheckAll))
-  assert_true(parse_command(["moonbitlings", "watch"]) is Ok(Watch(None)))
+  assert_true(
+    parse_command(["moonbitlings", "watch"]) is Ok(Watch(None, false)),
+  )
   assert_true(
     parse_command(["moonbitlings", "watch", "01_hello"])
-    is Ok(Watch(Some("01_hello"))),
+    is Ok(Watch(Some("01_hello"), false)),
+  )
+  assert_true(
+    parse_command(["moonbitlings", "watch", "--no-editor", "01_hello"])
+    is Ok(Watch(Some("01_hello"), true)),
+  )
+  assert_true(
+    parse_command(["moonbitlings", "--no-editor"]) is Ok(Watch(None, true)),
   )
   assert_true(parse_command(["moonbitlings", "--help"]) is Ok(Help))
-  assert_true(parse_command(["moonbitlings"]) is Ok(Watch(None)))
+  assert_true(parse_command(["moonbitlings"]) is Ok(Watch(None, false)))
 }
 
 ///|
@@ -43,6 +52,31 @@ test "parse_command rejects malformed input" {
   assert_true(parse_command([]) is Err(_))
   assert_true(parse_command(["moonbitlings", "bogus"]) is Err(_))
   assert_true(parse_command(["moonbitlings", "list", "--bogus"]) is Err(_))
+  assert_true(parse_command(["moonbitlings", "watch", "one", "two"]) is Err(_))
+}
+
+///|
+test "build_editor_command expands the exercise path" {
+  let path = "exercises/01_hello/main.mbt"
+  let custom = build_editor_command(
+    Some("code --reuse-window {file}"),
+    false,
+    path,
+  )
+  guard custom is Ok(Some(custom)) else { fail("expected custom command") }
+  assert_eq(custom.program, "code")
+  assert_eq(custom.arguments, ["--reuse-window", path])
+
+  let appended = build_editor_command(Some("zed"), false, path)
+  guard appended is Ok(Some(appended)) else { fail("expected editor command") }
+  assert_eq(appended.arguments, [path])
+
+  let vscode = build_editor_command(None, true, path)
+  guard vscode is Ok(Some(vscode)) else { fail("expected VS Code command") }
+  assert_eq(vscode.program, "code")
+  assert_eq(vscode.arguments, ["--reuse-window", path])
+  assert_true(build_editor_command(None, false, path) is Ok(None))
+  assert_true(build_editor_command(Some("  "), false, path) is Err(_))
 }
 
 ///|

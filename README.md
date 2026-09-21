@@ -31,6 +31,7 @@ moon run cmd/moonbitlings -- reset 01_hello       # reset one exercise's progres
 moon run cmd/moonbitlings -- check-all            # verify every exercise
 moon run cmd/moonbitlings -- watch                # explicitly start the watch session
 moon run cmd/moonbitlings -- watch 02_add         # start at a specific exercise
+moon run cmd/moonbitlings -- watch --no-editor    # do not open an editor
 ```
 
 Exit codes: `0` = the requested exercise(s) passed (or the command completed),
@@ -52,6 +53,15 @@ press `n`.
 Press `l` to open the interactive exercise list. Use `j`/`k` or the arrow keys
 to move, Enter or `c` to continue at the selected exercise, and `q` or Escape
 to return. The selected exercise is restored the next time watch starts.
+
+In an interactive VS Code terminal, watch opens the current exercise with
+`code --reuse-window`. Set `EDIT_CMD` to use another editor, for example
+`EDIT_CMD="zed {file}"`; `{file}` is replaced with the relative source path,
+or the path is appended when the placeholder is absent. The command is parsed
+as space-separated arguments without a shell, so arguments containing spaces
+are not supported. Editor launch failures are warnings and do not stop watch.
+Use `--no-editor` to disable opening, or click the printed relative `File:` path
+in terminals that recognize file paths.
 
 ## How it works
 
