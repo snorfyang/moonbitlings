@@ -4,6 +4,12 @@
 extern "c" fn process_exit(code : Int) = "exit"
 
 ///|
+extern "C" fn enable_raw_input() -> Int = "moonbitlings_enable_raw_input"
+
+///|
+extern "C" fn restore_input() -> Unit = "moonbitlings_restore_input"
+
+///|
 pub enum Command {
   List(@lib.ListFilter)
   Verify(String?)
@@ -433,10 +439,30 @@ fn render_watch_prompt(passed : Bool) -> String {
 }
 
 ///|
-async fn read_watch_input(events : @aqueue.Queue[WatchEvent]) -> Unit {
+async fn read_watch_input(
+  events : @aqueue.Queue[WatchEvent],
+  raw_input : Bool,
+) -> Unit {
   try {
-    while @stdio.stdin.read_until("\n") is Some(line) {
-      events.put(Input(Some(line)))
+    if raw_input {
+      while @stdio.stdin.read_some(max_len=1) is Some(input) {
+        let action = match input[0] {
+          b'h' => Some("h")
+          b'r' => Some("r")
+          b'n' => Some("n")
+          b'l' => Some("l")
+          b'c' => Some("c")
+          b'q' => Some("q")
+          _ => None
+        }
+        if action is Some(action) {
+          events.put(Input(Some(action)))
+        }
+      }
+    } else {
+      while @stdio.stdin.read_until("\n") is Some(line) {
+        events.put(Input(Some(line)))
+      }
     }
   } catch {
     err if @async.is_cancellation_error(err) => raise err
@@ -526,8 +552,10 @@ async fn run_watch(
   }
   let watched_dir = Ref(@lib.exercise_dir(manifest.exercises[index].id))
   let events : @aqueue.Queue[WatchEvent] = @aqueue.Queue(kind=@aqueue.Unbounded)
+  let raw_input = enable_raw_input() == 1
+  defer restore_input()
   @async.with_task_group <| group => {
-    group.spawn_bg(() => read_watch_input(events))
+    group.spawn_bg(() => read_watch_input(events, raw_input))
     group.spawn_bg(() => watch_source_changes(events, watched_dir))
     let initial = match verify_watch_exercise(manifest, state, index) {
       Err(message) => {

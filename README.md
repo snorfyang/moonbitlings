@@ -43,9 +43,11 @@ exercise. `watch` re-verifies automatically when you save a source file.
 only progress state and never overwrites exercise source files.
 
 The watch session keeps the current exercise, source path, status, and progress
-visible. Enter `h`, `r`, `n`, `l`, `c`, or `q` followed by Enter to show a hint,
-recheck, move to the next exercise after success, list exercises, check all, or
-quit. A passing exercise remains current until you enter `n`.
+visible. In an interactive Unix-like terminal, press `h`, `r`, `n`, `l`, `c`,
+or `q` to show a hint, recheck, move to the next exercise after success, list
+exercises, check all, or quit. No Enter is needed. Piped input and unsupported
+terminals fall back to line input. A passing exercise remains current until you
+press `n`.
 
 ## How it works
 
@@ -54,7 +56,8 @@ quit. A passing exercise remains current until you enter `n`.
   own module directory — there is no compiler fork.
 - `watch` polls the exercise's `main.mbt`/`main_test.mbt` modification times
   and re-verifies when a source file changes. Input and source changes are
-  handled concurrently; closed standard input exits the session cleanly.
+  handled concurrently; closed standard input exits the session cleanly. Raw
+  terminal settings are restored on normal exit, errors, and cancellation.
 - Progress is stored in `.moonbitlings-state.json` at the repository root,
   separate from the exercise sources.
 - Exercise metadata is versioned, human-editable JSON in

@@ -27,6 +27,8 @@ if [[ -z "$EXE" ]]; then
   exit 1
 fi
 
+python3 scripts/cli_tty_blackbox.py "$EXE"
+
 rm -f .moonbitlings-state.json
 
 fail=0
