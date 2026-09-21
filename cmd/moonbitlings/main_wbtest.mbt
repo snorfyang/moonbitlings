@@ -53,7 +53,20 @@ test "parse_watch_action accepts session commands" {
   assert_true(parse_watch_action("list") is ShowList)
   assert_true(parse_watch_action("c") is CheckAllExercises)
   assert_true(parse_watch_action("q") is Quit)
+  assert_true(parse_watch_action("\n") is IgnoreInput)
   assert_true(parse_watch_action("wat") is Unknown("wat"))
+}
+
+///|
+test "parse_watch_list_action accepts navigation commands" {
+  assert_true(parse_watch_list_action("k") is MoveUp)
+  assert_true(parse_watch_list_action("down") is MoveDown)
+  assert_true(parse_watch_list_action("\n") is Select)
+  assert_true(parse_watch_list_action("c") is Select)
+  assert_true(parse_watch_list_action("esc") is Back)
+  assert_true(parse_watch_list_action("wat") is Ignore)
+  assert_eq(move_list_selection(0, -1, 3), 2)
+  assert_eq(move_list_selection(2, 1, 3), 0)
 }
 
 ///|
@@ -89,4 +102,21 @@ test "watch view shows progress current file and actions" {
   assert_true(render_watch_prompt(false).contains("[h] hint"))
   assert_false(render_watch_prompt(false).contains("[n] next"))
   assert_true(render_watch_prompt(true).contains("[n] next"))
+}
+
+///|
+test "watch list marks selection and resumes persisted current" {
+  let manifest : @lib.Manifest = {
+    exercises: [
+      { id: "a", title: "First", hint: "h", kind: @lib.Check, },
+      { id: "b", title: "Second", hint: "h", kind: @lib.Check, },
+    ],
+  }
+  let state = @lib.State::empty().mark_done("a").with_current("b")
+  let rendered = render_watch_list(manifest, state, 1)
+  assert_true(rendered.contains("  [done] a - First"))
+  assert_true(rendered.contains("> [pending] b - Second"))
+  assert_eq(initial_watch_index(manifest, state), Some(1))
+  let stale = state.with_current("missing")
+  assert_eq(initial_watch_index(manifest, stale), Some(1))
 }

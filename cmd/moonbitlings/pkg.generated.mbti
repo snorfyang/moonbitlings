@@ -22,6 +22,10 @@ type WatchAction
 
 type WatchEvent
 
+type WatchListAction
+
+type WatchListResult
+
 // Type aliases
 
 // Traits

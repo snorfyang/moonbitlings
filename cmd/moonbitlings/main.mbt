@@ -29,6 +29,7 @@ enum WatchAction {
   ShowList
   CheckAllExercises
   Quit
+  IgnoreInput
   Unknown(String)
 }
 
@@ -36,6 +37,22 @@ enum WatchAction {
 enum WatchEvent {
   Input(String?)
   SourceChanged(String)
+}
+
+///|
+enum WatchListAction {
+  MoveUp
+  MoveDown
+  Select
+  Back
+  Ignore
+}
+
+///|
+enum WatchListResult {
+  Selected(Int)
+  Returned
+  InputClosed
 }
 
 ///|
@@ -142,7 +159,7 @@ async fn main {
         Verify(id) => process_exit(run_verify(manifest, state, id))
         Run(id) => process_exit(run_exercise(manifest, state, id))
         Reset(id) => process_exit(run_reset(manifest, state, id))
-        CheckAll => process_exit(run_check_all(manifest))
+        CheckAll => process_exit(run_check_all(manifest, state))
         Watch(id) => process_exit(run_watch(manifest, state, id))
         Help => abort("unreachable")
       }
@@ -351,8 +368,11 @@ fn select_exercise(
 }
 
 ///|
-async fn run_check_all(manifest : @lib.Manifest) -> Int {
-  let mut verified = @lib.State::empty()
+async fn run_check_all(manifest : @lib.Manifest, state : @lib.State) -> Int {
+  let mut verified = match state.current {
+    Some(id) => @lib.State::empty().with_current(id)
+    None => @lib.State::empty()
+  }
   for exercise in manifest.exercises {
     let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
     emit(@lib.render_verify_result(exercise, result))
@@ -381,6 +401,7 @@ fn parse_watch_action(line : String) -> WatchAction {
     "l" | "list" => ShowList
     "c" | "check-all" => CheckAllExercises
     "q" | "quit" => Quit
+    "" => IgnoreInput
     other => Unknown(other)
   }
 }
@@ -407,6 +428,18 @@ fn next_pending_index(
     }
   }
   None
+}
+
+///|
+fn initial_watch_index(manifest : @lib.Manifest, state : @lib.State) -> Int? {
+  match state.current {
+    Some(id) =>
+      match manifest.index_of(id) {
+        Some(index) => Some(index)
+        None => @lib.current_index(manifest, state)
+      }
+    None => @lib.current_index(manifest, state)
+  }
 }
 
 ///|
@@ -439,6 +472,88 @@ fn render_watch_prompt(passed : Bool) -> String {
 }
 
 ///|
+fn parse_watch_list_action(line : String) -> WatchListAction {
+  match line.trim().to_owned() {
+    "k" | "up" => MoveUp
+    "j" | "down" => MoveDown
+    "" | "enter" | "c" | "continue" => Select
+    "q" | "esc" | "back" => Back
+    _ => Ignore
+  }
+}
+
+///|
+fn move_list_selection(index : Int, delta : Int, length : Int) -> Int {
+  let next = index + delta
+  if next < 0 {
+    length - 1
+  } else if next >= length {
+    0
+  } else {
+    next
+  }
+}
+
+///|
+fn render_watch_list(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  selected : Int,
+) -> String {
+  let buf = StringBuilder()
+  buf.write_string("Exercises\n\n")
+  for index = 0; index < manifest.exercises.length(); index = index + 1 {
+    let exercise = manifest.exercises[index]
+    let marker = if index == selected { ">" } else { " " }
+    let status = if state.is_done(exercise.id) { "done" } else { "pending" }
+    buf.write_string(
+      "\{marker} [\{status}] \{exercise.id} - \{exercise.title}\n",
+    )
+  }
+  buf.write_string("\n[j/k or ↑/↓] move  [Enter/c] continue  [q/Esc] back")
+  buf.to_string()
+}
+
+///|
+async fn run_watch_list(
+  events : @aqueue.Queue[WatchEvent],
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  current : Int,
+) -> WatchListResult {
+  let mut selected = current
+  emit(render_watch_list(manifest, state, selected))
+  for ;; {
+    match events.get() {
+      Input(None) => return InputClosed
+      SourceChanged(_) => ()
+      Input(Some(input)) =>
+        match parse_watch_list_action(input) {
+          MoveUp => {
+            selected = move_list_selection(
+              selected,
+              -1,
+              manifest.exercises.length(),
+            )
+            emit(render_watch_list(manifest, state, selected))
+          }
+          MoveDown => {
+            selected = move_list_selection(
+              selected,
+              1,
+              manifest.exercises.length(),
+            )
+            emit(render_watch_list(manifest, state, selected))
+          }
+          Select => return Selected(selected)
+          Back => return Returned
+          Ignore => ()
+        }
+    }
+  }
+}
+
+///|
 async fn read_watch_input(
   events : @aqueue.Queue[WatchEvent],
   raw_input : Bool,
@@ -453,6 +568,27 @@ async fn read_watch_input(
           b'l' => Some("l")
           b'c' => Some("c")
           b'q' => Some("q")
+          b'j' => Some("j")
+          b'k' => Some("k")
+          b'\r' | b'\n' => Some("")
+          b'\x1b' => {
+            let second = @async.with_timeout_opt(50, () => {
+              @stdio.stdin.read_some(max_len=1)
+            })
+            match second {
+              Some(Some(bytes)) if bytes[0] == b'[' => {
+                let third = @async.with_timeout_opt(50, () => {
+                  @stdio.stdin.read_some(max_len=1)
+                })
+                match third {
+                  Some(Some(bytes)) if bytes[0] == b'A' => Some("up")
+                  Some(Some(bytes)) if bytes[0] == b'B' => Some("down")
+                  _ => Some("esc")
+                }
+              }
+              _ => Some("esc")
+            }
+          }
           _ => None
         }
         if action is Some(action) {
@@ -507,12 +643,13 @@ async fn verify_watch_exercise(
   let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
   let did_pass = @lib.passed(result)
   let was_done = state.is_done(exercise.id)
-  let state = if did_pass {
+  let was_current = state.current == Some(exercise.id)
+  let state = (if did_pass {
     state.mark_done(exercise.id)
   } else {
     state.mark_pending(exercise.id)
-  }
-  if did_pass != was_done {
+  }).with_current(exercise.id)
+  if did_pass != was_done || !was_current {
     match save_state(state_path, state) {
       Err(message) => return Err(message)
       Ok(_) => ()
@@ -542,7 +679,7 @@ async fn run_watch(
         }
       }
     None =>
-      match @lib.current_index(manifest, state) {
+      match initial_watch_index(manifest, state) {
         Some(index) => index
         None => {
           emit("all exercises are already done")
@@ -630,11 +767,29 @@ async fn run_watch(
               }
             }
             ShowList => {
-              emit(@lib.render_list(manifest, state))
-              emit(render_watch_prompt(current_passed))
+              match run_watch_list(events, manifest, state, index) {
+                InputClosed => group.return_immediately(0)
+                Selected(selected) => {
+                  index = selected
+                  watched_dir.val = @lib.exercise_dir(
+                    manifest.exercises[index].id,
+                  )
+                }
+                Returned => ()
+              }
+              match verify_watch_exercise(manifest, state, index) {
+                Err(message) => {
+                  emit("error: \{message}")
+                  group.return_immediately(2)
+                }
+                Ok(value) => {
+                  state = value.0
+                  current_passed = value.1
+                }
+              }
             }
             CheckAllExercises => {
-              ignore(run_check_all(manifest))
+              ignore(run_check_all(manifest, state))
               match load_state(state_path) {
                 Err(message) => {
                   emit("error: \{message}")
@@ -648,6 +803,7 @@ async fn run_watch(
               emit(render_watch_prompt(current_passed))
             }
             Quit => group.return_immediately(0)
+            IgnoreInput => ()
             Unknown(action) => {
               emit("unknown watch action \"\{action}\"")
               emit(render_watch_prompt(current_passed))

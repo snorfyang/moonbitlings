@@ -49,6 +49,10 @@ exercises, check all, or quit. No Enter is needed. Piped input and unsupported
 terminals fall back to line input. A passing exercise remains current until you
 press `n`.
 
+Press `l` to open the interactive exercise list. Use `j`/`k` or the arrow keys
+to move, Enter or `c` to continue at the selected exercise, and `q` or Escape
+to return. The selected exercise is restored the next time watch starts.
+
 ## How it works
 
 - The verifier is the official toolchain. moonbitlings runs `moon check` (for
@@ -68,13 +72,14 @@ press `n`.
 Progress is stored in `.moonbitlings-state.json` at the repository root:
 
 ```json
-{ "version": 1, "done": ["01_hello", "02_add"] }
+{ "version": 2, "done": ["01_hello", "02_add"], "current": "03_sum_to" }
 ```
 
 The `version` field guards the format. A corrupt file or an unsupported
-version is reported as an error rather than guessed at. Progress is
-reconstructible, so deleting the file simply resets progress — the exercises
-are unaffected.
+version is reported as an error rather than guessed at. Version 1 state files
+remain readable and gain `current` when watch next saves them. Progress is
+reconstructible, so deleting the file simply resets progress and the current
+selection — the exercises are unaffected.
 
 ## Project layout
 
@@ -90,7 +95,8 @@ test_fixtures/            small passing/failing fixtures used by tests
 
 ## Features
 
-- an interactive watch session when invoked without a command;
+- an interactive watch session and navigable exercise list when invoked
+  without a command;
 - `list [--pending|--done]`, `verify [id]`, `hint [id]`, `run [id]`,
   `reset [id]`, `check-all`, `watch [id]` commands;
 - a progressive curriculum covering expressions, functions, loops, recursion,

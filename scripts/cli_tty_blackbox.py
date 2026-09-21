@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that watch accepts one key and restores Unix terminal flags."""
+"""Verify single-key watch/list navigation and Unix terminal restoration."""
 
 import fcntl
 import os
@@ -16,6 +16,14 @@ def read_available(fd: int) -> bytes:
         return os.read(fd, 4096)
     except OSError:
         return b""
+
+
+def wait_for(fd: int, output: bytes, marker: bytes, timeout: float) -> bytes:
+    deadline = time.monotonic() + timeout
+    while marker not in output and time.monotonic() < deadline:
+        if select.select([fd], [], [], 0.1)[0]:
+            output += read_available(fd)
+    return output
 
 
 def stop_child(pid: int) -> None:
@@ -46,14 +54,25 @@ def main() -> int:
         os.execv(executable, [executable, "watch"])
 
     os.close(slave)
-    output = b""
-    deadline = time.monotonic() + 10
-    while b"[q] quit" not in output and time.monotonic() < deadline:
-        if select.select([master], [], [], 0.1)[0]:
-            output += read_available(master)
+    output = wait_for(master, b"", b"[q] quit", 10)
     if b"[q] quit" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not reach its prompt", file=sys.stderr)
+        return 1
+
+    os.write(master, b"l")
+    output = wait_for(master, output, b"[Enter/c] continue", 2)
+    os.write(master, b"\x1b[B")
+    output = wait_for(master, output, b"> [pending] 02_add", 2)
+    if b"> [pending] 02_add" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch list did not handle the down arrow", file=sys.stderr)
+        return 1
+    os.write(master, b"\r")
+    output = wait_for(master, output, b"Current: 02_add", 10)
+    if b"Current: 02_add" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch list did not select with Enter", file=sys.stderr)
         return 1
 
     os.write(master, b"q")
@@ -81,7 +100,7 @@ def main() -> int:
         return 1
 
     os.close(master)
-    print("ok: TTY watch accepts q without Enter and restores terminal flags")
+    print("ok: TTY watch navigates with single keys and restores terminal flags")
     return 0
 
 

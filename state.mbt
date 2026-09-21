@@ -1,7 +1,8 @@
 ///|
-/// Learner progress: the ids of completed exercises.
+/// Learner progress and the last exercise selected in watch mode.
 pub(all) struct State {
   done : Array[String]
+  current : String?
 }
 
 ///|
@@ -14,7 +15,7 @@ pub(all) enum ListFilter {
 
 ///|
 pub fn State::empty() -> State {
-  { done: [], }
+  { done: [], current: None, }
 }
 
 ///|
@@ -38,7 +39,7 @@ pub fn State::mark_done(self : State, id : String) -> State {
     done.push(done_id)
   }
   done.push(id)
-  { done, }
+  { done, current: self.current, }
 }
 
 ///|
@@ -50,7 +51,13 @@ pub fn State::mark_pending(self : State, id : String) -> State {
       done.push(done_id)
     }
   }
-  { done, }
+  { done, current: self.current, }
+}
+
+///|
+/// Returns a new state with the selected watch exercise.
+pub fn State::with_current(self : State, id : String) -> State {
+  { done: self.done, current: Some(id), }
 }
 
 ///|
@@ -62,13 +69,15 @@ pub fn parse_state(text : String) -> Result[State, String] {
   guard json is Object(fields) else {
     return Err("state must be a JSON object")
   }
-  match fields.get("version") {
-    Some(Number(value, ..)) =>
-      if value != 1.0 {
+  let version = match fields.get("version") {
+    Some(Number(value, ..)) => {
+      if value != 1.0 && value != 2.0 {
         return Err(
           "unsupported state version; delete the state file to start over",
         )
       }
+      value
+    }
     Some(_) => return Err("state.version must be a number")
     None => return Err("state.version is required")
   }
@@ -86,7 +95,17 @@ pub fn parse_state(text : String) -> Result[State, String] {
     Some(_) => return Err("state.done must be an array")
     None => return Err("state.done is required")
   }
-  Ok({ done, })
+  let current = if version == 1.0 {
+    None
+  } else {
+    match fields.get("current") {
+      Some(String(id)) => Some(id)
+      Some(Null) => None
+      Some(_) => return Err("state.current must be a string or null")
+      None => return Err("state.current is required")
+    }
+  }
+  Ok({ done, current, })
 }
 
 ///|
@@ -97,8 +116,12 @@ pub fn State::to_json(self : State) -> String {
     done_json.push(Json::string(id))
   }
   let map : Map[String, Json] = {
-    "version": Json::number(1.0, repr="1"),
+    "version": Json::number(2.0, repr="2"),
     "done": Json::array(done_json),
+    "current": match self.current {
+      Some(id) => Json::string(id)
+      None => Json::null()
+    },
   }
   Json::object(map).stringify()
 }

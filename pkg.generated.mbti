@@ -62,12 +62,14 @@ pub fn Manifest::index_of(Self, String) -> Int?
 
 pub(all) struct State {
   done : Array[String]
+  current : String?
 }
 pub fn State::empty() -> Self
 pub fn State::is_done(Self, String) -> Bool
 pub fn State::mark_done(Self, String) -> Self
 pub fn State::mark_pending(Self, String) -> Self
 pub fn State::to_json(Self) -> String
+pub fn State::with_current(Self, String) -> Self
 
 pub(all) struct VerifierResult {
   exit_code : Int

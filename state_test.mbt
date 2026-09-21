@@ -2,6 +2,7 @@
 test "state starts empty" {
   let state = State::empty()
   assert_false(state.is_done("01_hello"))
+  assert_eq(state.current, None)
 }
 
 ///|
@@ -33,6 +34,19 @@ test "parse_state reads done ids" {
   assert_true(state.is_done("01_hello"))
   assert_true(state.is_done("02_add"))
   assert_eq(state.done.length(), 2)
+  assert_eq(state.current, None)
+}
+
+///|
+test "parse_state reads version 2 current exercise" {
+  let text =
+    #|{"version":2,"done":["01_hello"],"current":"02_add"}
+  let state = match parse_state(text) {
+    Ok(state) => state
+    Err(message) => fail(message)
+  }
+  assert_true(state.is_done("01_hello"))
+  assert_eq(state.current, Some("02_add"))
 }
 
 ///|
@@ -40,6 +54,9 @@ test "parse_state rejects malformed shapes" {
   assert_true(parse_state("not json") is Err(_))
   assert_true(parse_state("{\"version\":1,\"done\":\"nope\"}") is Err(_))
   assert_true(parse_state("{\"version\":1,\"done\":[1,2]}") is Err(_))
+  assert_true(
+    parse_state("{\"version\":2,\"done\":[],\"current\":3}") is Err(_),
+  )
   assert_true(parse_state("{}") is Err(_))
 }
 
@@ -52,15 +69,19 @@ test "parse_state rejects a missing or unsupported version" {
 
 ///|
 test "state round-trips through JSON" {
-  let state = State::empty().mark_done("02_add").mark_done("01_hello")
+  let state = State::empty()
+    .mark_done("02_add")
+    .mark_done("01_hello")
+    .with_current("02_add")
   let text = state.to_json()
-  assert_true(text.contains("\"version\":1"))
+  assert_true(text.contains("\"version\":2"))
   let parsed = match parse_state(text) {
     Ok(parsed) => parsed
     Err(message) => fail(message)
   }
   assert_true(parsed.is_done("01_hello"))
   assert_true(parsed.is_done("02_add"))
+  assert_eq(parsed.current, Some("02_add"))
 }
 
 ///|

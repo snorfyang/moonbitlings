@@ -27,8 +27,8 @@ if [[ -z "$EXE" ]]; then
   exit 1
 fi
 
+rm -f .moonbitlings-state.json
 python3 scripts/cli_tty_blackbox.py "$EXE"
-
 rm -f .moonbitlings-state.json
 
 fail=0
@@ -116,6 +116,8 @@ expect "list rejects an unknown option" 2 --contains "unknown list option" -- li
 expect "an unknown command" 2 -- bogus
 expect_input "default command starts watch" 0 $'q\n' "Current: 01_hello" --
 expect_input "watch exits cleanly on input EOF" 0 '' "Current: 01_hello" -- watch
+expect_input "watch list selects another exercise" 0 $'l\nj\nc\nq\n' "checking 02_add" -- watch
+expect_input "watch resumes the selected exercise" 0 $'q\n' "Current: 02_add" -- watch
 expect_input "watch keeps a failing exercise current" 0 $'n\nq\n' "finish the current exercise" -- watch
 
 # Pass path: fix an exercise, verify it passes, then restore the broken source
