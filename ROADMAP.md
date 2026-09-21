@@ -3,16 +3,17 @@
 ## 定位
 
 MoonBit 生态的 Rustlings 式离线交互练习工具：一组渐进式练习 + 本地 CLI
-（list / verify / hint / watch），复用官方 `moon` 工具链做判定。
+（list / verify / hint / run / reset / check-all / watch），复用官方 `moon`
+工具链做判定。
 
 对照基准：Rustlings（95 题 / 26 主题 / watch TUI / check-all CI / run / reset /
 hint / 自动打开编辑器 / 一条命令安装）。
 
 ## 现状快照
 
-- 12 道练习、12 个特性各 1 题，`list`/`verify <id>`/`hint <id>`/`watch [id]`
-  四个命令可用，进度状态带版本号，24 个测试 + 进程级黑盒脚本 + GitHub Actions
-  全绿。
+- 12 道练习、12 个特性各 1 题，`list`/`verify [id]`/`hint [id]`/`run [id]`/
+  `reset [id]`/`check-all`/`watch [id]` 七个命令可用，进度状态带版本号，
+  30 个测试 + 进程级黑盒脚本 + GitHub Actions 全绿。
 - 判定器、解析层、状态层已分层；每题是独立 module，不影响主包 CI。
 
 ---
@@ -21,13 +22,13 @@ hint / 自动打开编辑器 / 一条命令安装）。
 
 目标：把功能层面的差距先拉到最接近，全部小步可测。
 
-### P0-1 check-all（最重要）
+### P0-1 check-all（已完成）
 - `moonbitlings check-all`：验证全部练习，打印 `done/total` 与
   `N/M pending，第一题是 X` 摘要；有 pending 时退出码非 0（CI 友好）。
 - 顺带让 `verify` 支持「无参 = 验证下一道 pending」，与 rustlings 语义一致。
 - 验收：黑盒脚本覆盖「全过 exit 0」「有 pending exit 1」。
 
-### P0-2 run / reset / hint 无参语义
+### P0-2 run / reset / hint 无参语义（已完成）
 - `run [id]`：跑单个练习（无参 = 下一题）；与 `verify` 的区别是「跑」而非
   只判（为将来支持纯 `main` 程序题留口子）。
 - `reset [id]`：重置单题进度（无参 = 当前/下一题）。

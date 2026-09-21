@@ -11,6 +11,8 @@ pub enum Command {
   List
   Verify(String?)
   Hint(String?)
+  Run(String?)
+  Reset(String?)
   CheckAll
   Watch(String?)
   Help

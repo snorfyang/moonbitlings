@@ -24,6 +24,8 @@ pub fn render_hint(Exercise) -> String
 
 pub fn render_list(Manifest, State) -> String
 
+pub fn render_run_result(Exercise, VerifierResult) -> String
+
 pub fn render_verify_result(Exercise, VerifierResult) -> String
 
 pub async fn run_moon(ExerciseKind, String) -> VerifierResult
@@ -41,6 +43,7 @@ pub(all) struct Exercise {
 pub(all) enum ExerciseKind {
   Check
   Test
+  Run
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Manifest {
@@ -55,6 +58,7 @@ pub(all) struct State {
 pub fn State::empty() -> Self
 pub fn State::is_done(Self, String) -> Bool
 pub fn State::mark_done(Self, String) -> Self
+pub fn State::mark_pending(Self, String) -> Self
 pub fn State::to_json(Self) -> String
 
 pub(all) struct VerifierResult {

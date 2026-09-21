@@ -6,16 +6,17 @@ fn exercise(id : String, title : String, kind : ExerciseKind) -> Exercise {
 ///|
 test "parse a valid manifest" {
   let text =
-    #|{"exercises":[{"id":"01_hello","title":"Hello","hint":"h","kind":"check"},{"id":"02_add","title":"Add","hint":"h2","kind":"test"}]}
+    #|{"exercises":[{"id":"01_hello","title":"Hello","hint":"h","kind":"check"},{"id":"02_add","title":"Add","hint":"h2","kind":"test"},{"id":"03_main","title":"Main","hint":"h3","kind":"run"}]}
   let manifest = match parse_manifest(text) {
     Ok(manifest) => manifest
     Err(message) => fail(message)
   }
-  assert_eq(manifest.exercises.length(), 2)
+  assert_eq(manifest.exercises.length(), 3)
   assert_eq(manifest.exercises[0].id, "01_hello")
   assert_eq(manifest.exercises[0].title, "Hello")
   assert_eq(manifest.exercises[0].kind, Check)
   assert_eq(manifest.exercises[1].kind, Test)
+  assert_eq(manifest.exercises[2].kind, Run)
 }
 
 ///|

@@ -14,6 +14,15 @@ test "mark_done records an id and is idempotent" {
 }
 
 ///|
+test "mark_pending removes only the requested id" {
+  let state = State::empty().mark_done("01_hello").mark_done("02_add")
+  let state = state.mark_pending("01_hello")
+  assert_false(state.is_done("01_hello"))
+  assert_true(state.is_done("02_add"))
+  assert_eq(state.mark_pending("missing").done.length(), 1)
+}
+
+///|
 test "parse_state reads done ids" {
   let text =
     #|{"version":1,"done":["01_hello","02_add"]}

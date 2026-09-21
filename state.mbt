@@ -34,6 +34,18 @@ pub fn State::mark_done(self : State, id : String) -> State {
 }
 
 ///|
+/// Returns a new state with `id` marked as pending.
+pub fn State::mark_pending(self : State, id : String) -> State {
+  let done : Array[String] = []
+  for done_id in self.done {
+    if done_id != id {
+      done.push(done_id)
+    }
+  }
+  { done, }
+}
+
+///|
 /// Parse a state file from JSON text.
 pub fn parse_state(text : String) -> Result[State, String] {
   let json = @json.parse(text) catch {

@@ -8,6 +8,8 @@ pub enum Command {
   List
   Verify(String?)
   Hint(String?)
+  Run(String?)
+  Reset(String?)
   CheckAll
   Watch(String?)
   Help
@@ -15,7 +17,7 @@ pub enum Command {
 
 ///|
 let usage =
-  #|usage: moonbitlings <list|verify [id]|hint [id]|check-all|watch [id]>
+  #|usage: moonbitlings <list|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id]>
 
 ///|
 let manifest_path = "exercises/manifest.json"
@@ -27,7 +29,9 @@ let state_path = ".moonbitlings-state.json"
 /// Parse the command line into a command.
 pub fn parse_command(args : Array[String]) -> Result[Command, String] {
   if args.length() < 2 {
-    return Err("expected a command: list, verify, hint, check-all, or watch")
+    return Err(
+      "expected a command: list, verify, hint, run, reset, check-all, or watch",
+    )
   }
   match args[1] {
     "list" => Ok(List)
@@ -42,6 +46,18 @@ pub fn parse_command(args : Array[String]) -> Result[Command, String] {
         Ok(Hint(Some(args[2])))
       } else {
         Ok(Hint(None))
+      }
+    "run" =>
+      if args.length() >= 3 {
+        Ok(Run(Some(args[2])))
+      } else {
+        Ok(Run(None))
+      }
+    "reset" =>
+      if args.length() >= 3 {
+        Ok(Reset(Some(args[2])))
+      } else {
+        Ok(Reset(None))
       }
     "check-all" => Ok(CheckAll)
     "watch" =>
@@ -91,6 +107,8 @@ async fn main {
         List => process_exit(run_list(manifest, state))
         Hint(id) => process_exit(run_hint(manifest, state, id))
         Verify(id) => process_exit(run_verify(manifest, state, id))
+        Run(id) => process_exit(run_exercise(manifest, state, id))
+        Reset(id) => process_exit(run_reset(manifest, state, id))
         CheckAll => process_exit(run_check_all(manifest, state))
         Watch(id) => process_exit(run_watch(manifest, state, id))
         Help => abort("unreachable")
@@ -190,6 +208,86 @@ async fn run_verify(
         }
       } else {
         1
+      }
+    }
+  }
+}
+
+///|
+async fn run_exercise(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  id : String?,
+) -> Int {
+  match select_exercise(manifest, state, id) {
+    Err(message) => {
+      emit("error: \{message}")
+      2
+    }
+    Ok(None) => {
+      emit("all exercises are already done")
+      0
+    }
+    Ok(Some(exercise)) => {
+      let result = @lib.run_moon(@lib.Run, @lib.exercise_dir(exercise.id))
+      emit(@lib.render_run_result(exercise, result))
+      if @lib.passed(result) {
+        match save_state(state_path, state.mark_done(exercise.id)) {
+          Ok(_) => 0
+          Err(message) => {
+            emit("warning: \{message}")
+            0
+          }
+        }
+      } else {
+        1
+      }
+    }
+  }
+}
+
+///|
+async fn run_reset(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  id : String?,
+) -> Int {
+  let selected = match id {
+    Some(_) => select_exercise(manifest, state, id)
+    None =>
+      match @lib.current_index(manifest, state) {
+        Some(index) => Ok(Some(manifest.exercises[index]))
+        None =>
+          if manifest.exercises.is_empty() {
+            Ok(None)
+          } else {
+            Ok(Some(manifest.exercises[manifest.exercises.length() - 1]))
+          }
+      }
+  }
+  match selected {
+    Err(message) => {
+      emit("error: \{message}")
+      2
+    }
+    Ok(None) => {
+      emit("there are no exercises to reset")
+      0
+    }
+    Ok(Some(exercise)) => {
+      if !state.is_done(exercise.id) {
+        emit("exercise \{exercise.id} is already pending")
+        return 0
+      }
+      match save_state(state_path, state.mark_pending(exercise.id)) {
+        Ok(_) => {
+          emit("exercise \{exercise.id} reset")
+          0
+        }
+        Err(message) => {
+          emit("error: \{message}")
+          2
+        }
       }
     }
   }

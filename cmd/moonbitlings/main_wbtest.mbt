@@ -11,6 +11,16 @@ test "parse_command selects each command" {
     is Ok(Hint(Some("01_hello"))),
   )
   assert_true(parse_command(["moonbitlings", "hint"]) is Ok(Hint(None)))
+  assert_true(
+    parse_command(["moonbitlings", "run", "01_hello"])
+    is Ok(Run(Some("01_hello"))),
+  )
+  assert_true(parse_command(["moonbitlings", "run"]) is Ok(Run(None)))
+  assert_true(
+    parse_command(["moonbitlings", "reset", "01_hello"])
+    is Ok(Reset(Some("01_hello"))),
+  )
+  assert_true(parse_command(["moonbitlings", "reset"]) is Ok(Reset(None)))
   assert_true(parse_command(["moonbitlings", "check-all"]) is Ok(CheckAll))
   assert_true(parse_command(["moonbitlings", "watch"]) is Ok(Watch(None)))
   assert_true(

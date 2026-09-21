@@ -3,6 +3,7 @@
 pub(all) enum ExerciseKind {
   Check
   Test
+  Run
 } derive(Eq, @debug.Debug)
 
 ///|
@@ -71,6 +72,7 @@ fn parse_exercise(json : Json) -> Result[Exercise, String] {
       match value {
         "check" => Check
         "test" => Test
+        "run" => Run
         other => return Err("unknown kind \"\{other}\"")
       }
     Some(_) => return Err("kind must be a string")
