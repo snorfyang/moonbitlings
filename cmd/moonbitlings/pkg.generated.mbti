@@ -8,7 +8,7 @@ pub fn parse_command(Array[String]) -> Result[Command, String]
 
 // Types and methods
 pub enum Command {
-  List
+  List(@snorfyang/moonbitlings.ListFilter)
   Verify(String?)
   Hint(String?)
   Run(String?)

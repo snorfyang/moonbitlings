@@ -20,6 +20,8 @@ Prerequisites: a MoonBit toolchain with `moon` on your `PATH`.
 git clone <this repository> && cd moonbitlings
 
 moon run cmd/moonbitlings -- list                 # show all exercises and status
+moon run cmd/moonbitlings -- list --pending       # show pending exercises only
+moon run cmd/moonbitlings -- list --done          # show completed exercises only
 moon run cmd/moonbitlings -- hint 01_hello        # print a hint for an exercise
 moon run cmd/moonbitlings -- verify 01_hello      # run one exercise's check/test
 moon run cmd/moonbitlings -- verify               # verify the next pending exercise
@@ -78,8 +80,8 @@ test_fixtures/            small passing/failing fixtures used by tests
 
 ## Features
 
-- `list`, `verify [id]`, `hint [id]`, `run [id]`, `reset [id]`, `check-all`,
-  `watch [id]` commands;
+- `list [--pending|--done]`, `verify [id]`, `hint [id]`, `run [id]`,
+  `reset [id]`, `check-all`, `watch [id]` commands;
 - a progressive curriculum covering expressions, functions, loops, recursion,
   structs, enums, pattern matching, `Option`, error handling, generics, traits,
   higher-order functions, and array iteration;

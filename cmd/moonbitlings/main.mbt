@@ -5,7 +5,7 @@ extern "c" fn process_exit(code : Int) = "exit"
 
 ///|
 pub enum Command {
-  List
+  List(@lib.ListFilter)
   Verify(String?)
   Hint(String?)
   Run(String?)
@@ -17,7 +17,7 @@ pub enum Command {
 
 ///|
 let usage =
-  #|usage: moonbitlings <list|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id]>
+  #|usage: moonbitlings <list [--pending|--done]|verify [id]|hint [id]|run [id]|reset [id]|check-all|watch [id]>
 
 ///|
 let manifest_path = "exercises/manifest.json"
@@ -34,7 +34,16 @@ pub fn parse_command(args : Array[String]) -> Result[Command, String] {
     )
   }
   match args[1] {
-    "list" => Ok(List)
+    "list" =>
+      if args.length() < 3 {
+        Ok(List(@lib.All))
+      } else {
+        match args[2] {
+          "--pending" => Ok(List(@lib.Pending))
+          "--done" => Ok(List(@lib.Done))
+          option => Err("unknown list option \"\{option}\"")
+        }
+      }
     "verify" =>
       if args.length() >= 3 {
         Ok(Verify(Some(args[2])))
@@ -104,7 +113,7 @@ async fn main {
         Ok(state) => state
       }
       match command {
-        List => process_exit(run_list(manifest, state))
+        List(filter) => process_exit(run_list(manifest, state, filter))
         Hint(id) => process_exit(run_hint(manifest, state, id))
         Verify(id) => process_exit(run_verify(manifest, state, id))
         Run(id) => process_exit(run_exercise(manifest, state, id))
@@ -157,8 +166,12 @@ async fn save_state(path : String, state : @lib.State) -> Result[Unit, String] {
 }
 
 ///|
-fn run_list(manifest : @lib.Manifest, state : @lib.State) -> Int {
-  emit(@lib.render_list(manifest, state))
+fn run_list(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  filter : @lib.ListFilter,
+) -> Int {
+  emit(@lib.render_list_filtered(manifest, state, filter))
   0
 }
 

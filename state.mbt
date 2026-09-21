@@ -5,6 +5,14 @@ pub(all) struct State {
 }
 
 ///|
+/// Which exercises to include in list output.
+pub(all) enum ListFilter {
+  All
+  Pending
+  Done
+} derive(Eq, @debug.Debug)
+
+///|
 pub fn State::empty() -> State {
   { done: [], }
 }
@@ -111,9 +119,28 @@ pub fn current_index(manifest : Manifest, state : State) -> Int? {
 ///|
 /// Renders the exercise list with per-exercise status.
 pub fn render_list(manifest : Manifest, state : State) -> String {
+  render_list_filtered(manifest, state, All)
+}
+
+///|
+/// Renders exercises matching the requested status filter.
+pub fn render_list_filtered(
+  manifest : Manifest,
+  state : State,
+  filter : ListFilter,
+) -> String {
   let buf = StringBuilder()
   for exercise in manifest.exercises {
-    let status = if state.is_done(exercise.id) { "done" } else { "pending" }
+    let is_done = state.is_done(exercise.id)
+    let visible = match filter {
+      All => true
+      Pending => !is_done
+      Done => is_done
+    }
+    if !visible {
+      continue
+    }
+    let status = if is_done { "done" } else { "pending" }
     buf.write_string("[")
     buf.write_string(status)
     buf.write_string("] ")

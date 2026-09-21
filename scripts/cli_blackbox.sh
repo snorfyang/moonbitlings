@@ -64,6 +64,8 @@ expect() {
 }
 
 expect "list shows both exercises pending" 0 --contains "[pending] 01_hello" -- list
+expect "list filters pending exercises" 0 --contains "[pending] 01_hello" -- list --pending
+expect "list accepts an empty done filter" 0 -- list --done
 expect "hint prints a hint" 0 --contains "Replace the string" -- hint 01_hello
 expect "--help prints usage" 0 --contains "usage:" -- --help
 expect "verify a broken check exercise" 1 -- verify 01_hello
@@ -77,6 +79,7 @@ expect "check-all reports pending exercises" 1 --contains "pending; first pendin
 expect "verify an unknown exercise" 2 --contains "unknown exercise" -- verify nope
 expect "run an unknown exercise" 2 --contains "unknown exercise" -- run nope
 expect "reset an unknown exercise" 2 --contains "unknown exercise" -- reset nope
+expect "list rejects an unknown option" 2 --contains "unknown list option" -- list --bogus
 expect "an unknown command" 2 -- bogus
 
 # Pass path: fix an exercise, verify it passes, then restore the broken source
@@ -90,6 +93,7 @@ trap 'cp "$TMP_DIR/main.mbt" exercises/01_hello/main.mbt; cp "$TMP_DIR/moon.pkg"
 printf '///\npub fn answer() -> Int {\n  42\n}\n' > exercises/01_hello/main.mbt
 expect "verify a fixed exercise passes" 0 --contains "passed" -- verify 01_hello
 expect "list marks the fixed exercise done" 0 --contains "[done] 01_hello" -- list
+expect "list filters done exercises" 0 --contains "[done] 01_hello" -- list --done
 expect "reset marks an exercise pending" 0 --contains "01_hello reset" -- reset 01_hello
 expect "list shows a reset exercise pending" 0 --contains "[pending] 01_hello" -- list
 

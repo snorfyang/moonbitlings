@@ -84,6 +84,18 @@ test "render_list marks done exercises" {
 }
 
 ///|
+test "render_list filters by status" {
+  let manifest = manifest_of(["a", "b"])
+  let state = State::empty().mark_done("a")
+  let pending = render_list_filtered(manifest, state, Pending)
+  assert_false(pending.contains(" a"))
+  assert_true(pending.contains("[pending] b"))
+  let done = render_list_filtered(manifest, state, Done)
+  assert_true(done.contains("[done] a"))
+  assert_false(done.contains(" b"))
+}
+
+///|
 test "render_hint names the exercise" {
   let exercise : Exercise = {
     id: "a",

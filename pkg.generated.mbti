@@ -24,6 +24,8 @@ pub fn render_hint(Exercise) -> String
 
 pub fn render_list(Manifest, State) -> String
 
+pub fn render_list_filtered(Manifest, State, ListFilter) -> String
+
 pub fn render_run_result(Exercise, VerifierResult) -> String
 
 pub fn render_verify_result(Exercise, VerifierResult) -> String
@@ -44,6 +46,12 @@ pub(all) enum ExerciseKind {
   Check
   Test
   Run
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ListFilter {
+  All
+  Pending
+  Done
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Manifest {

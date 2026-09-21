@@ -1,6 +1,13 @@
 ///|
 test "parse_command selects each command" {
-  assert_true(parse_command(["moonbitlings", "list"]) is Ok(List))
+  assert_true(parse_command(["moonbitlings", "list"]) is Ok(List(@lib.All)))
+  assert_true(
+    parse_command(["moonbitlings", "list", "--pending"])
+    is Ok(List(@lib.Pending)),
+  )
+  assert_true(
+    parse_command(["moonbitlings", "list", "--done"]) is Ok(List(@lib.Done)),
+  )
   assert_true(
     parse_command(["moonbitlings", "verify", "01_hello"])
     is Ok(Verify(Some("01_hello"))),
@@ -35,4 +42,5 @@ test "parse_command rejects malformed input" {
   assert_true(parse_command([]) is Err(_))
   assert_true(parse_command(["moonbitlings"]) is Err(_))
   assert_true(parse_command(["moonbitlings", "bogus"]) is Err(_))
+  assert_true(parse_command(["moonbitlings", "list", "--bogus"]) is Err(_))
 }
