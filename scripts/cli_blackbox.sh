@@ -103,7 +103,7 @@ expect "hint prints a hint" 0 --contains "Replace the string" -- hint 01_hello
 expect "--help prints usage" 0 --contains "usage:" -- --help
 expect "verify a broken check exercise" 1 -- verify 01_hello
 expect "verify a broken test exercise" 1 -- verify 02_add
-expect "verify without an id checks the next exercise" 1 -- verify
+expect "verify without an id completes the introduction" 0 --contains "00_intro passed" -- verify
 expect "hint without an id shows the next exercise" 0 --contains "Hint for 01_hello" -- hint
 expect "run rejects a non-main exercise" 1 --contains "failed to run" -- run 01_hello
 expect "run without an id selects the next exercise" 1 --contains "failed to run" -- run

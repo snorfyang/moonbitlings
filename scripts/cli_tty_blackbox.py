@@ -65,11 +65,15 @@ def main() -> int:
         stop_child(pid)
         print("FAIL: TTY watch did not show its welcome", file=sys.stderr)
         return 1
-    if b"Progress: [------------------------] 0/12 done" not in output:
+    if b"Progress: [#-----------------------] 1/13 done" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not show its progress bar", file=sys.stderr)
         return 1
-    if b"editor-open exercises/01_hello/main.mbt" not in output:
+    if b"Current: 00_intro" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch did not start with the introduction", file=sys.stderr)
+        return 1
+    if b"editor-open exercises/00_intro/main.mbt" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not open the current exercise", file=sys.stderr)
         return 1
@@ -77,21 +81,21 @@ def main() -> int:
     os.write(master, b"l")
     output = wait_for(master, output, b"[Enter/c] continue", 2)
     os.write(master, b"\x1b[B")
-    output = wait_for(master, output, b"> [pending] 02_add", 2)
-    if b"> [pending] 02_add" not in output:
+    output = wait_for(master, output, b"> [pending] 01_hello", 2)
+    if b"> [pending] 01_hello" not in output:
         stop_child(pid)
         print("FAIL: TTY watch list did not handle the down arrow", file=sys.stderr)
         return 1
     os.write(master, b"\r")
-    output = wait_for(master, output, b"Current: 02_add", 10)
-    if b"Current: 02_add" not in output:
+    output = wait_for(master, output, b"Current: 01_hello", 10)
+    if b"Current: 01_hello" not in output:
         stop_child(pid)
         print("FAIL: TTY watch list did not select with Enter", file=sys.stderr)
         return 1
     output = wait_for(
-        master, output, b"editor-open exercises/02_add/main.mbt", 2
+        master, output, b"editor-open exercises/01_hello/main.mbt", 2
     )
-    if b"editor-open exercises/02_add/main.mbt" not in output:
+    if b"editor-open exercises/01_hello/main.mbt" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not open the selected exercise", file=sys.stderr)
         return 1

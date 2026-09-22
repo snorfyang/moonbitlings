@@ -9,7 +9,7 @@ moonbitlings provides a native CLI, a progressive set of small MoonBit
 exercises, automatic verification with the official toolchain, hints, and local
 progress tracking.
 
-> Status: working prototype. The CLI and a 12-exercise curriculum run end to
+> Status: working prototype. The CLI and a 13-exercise curriculum run end to
 > end; the curriculum will keep growing.
 
 ## Quick start

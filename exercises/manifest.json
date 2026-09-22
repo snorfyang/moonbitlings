@@ -1,6 +1,12 @@
 {
   "exercises": [
     {
+      "id": "00_intro",
+      "title": "Welcome: learn the workflow",
+      "hint": "This introduction is already complete. In watch mode, open the displayed file, then press `n` to continue to the first coding exercise.",
+      "kind": "check"
+    },
+    {
       "id": "01_hello",
       "title": "Hello: fix the type error",
       "hint": "The function is declared to return Int, but the body returns a String. Replace the string with an integer literal.",
