@@ -1,48 +1,43 @@
-# Watch mode
+# Watch 模式
 
-[Documentation home](index.md) | [简体中文](zh-CN/watch-mode.md)
+[文档首页](index.md) | [English](en/watch-mode.md)
 
-Watch mode keeps the current exercise, source path, verification status, and
-overall progress visible. It also re-verifies the exercise when `main.mbt` or
-`main_test.mbt` changes.
+Watch 模式会持续显示当前练习、源码路径、验证状态和总体进度。当 `main.mbt` 或
+`main_test.mbt` 发生变化时，它会自动重新验证。
 
-In an interactive Unix-like terminal, controls work without Enter:
+在类 Unix 的交互式终端中，以下按键无需 Enter：
 
-| Key | Action |
+| 按键 | 操作 |
 | --- | --- |
-| `h` | Show the current hint. |
-| `r` | Recheck the current exercise. |
-| `n` | Move to the next pending exercise after the current one passes. |
-| `l` | Open the interactive exercise list. |
-| `c` | Check all exercises. |
-| `q` | Quit. |
+| `h` | 显示当前练习的提示。 |
+| `r` | 重新检查当前练习。 |
+| `n` | 当前练习通过后，进入下一道待完成练习。 |
+| `l` | 打开交互式练习列表。 |
+| `c` | 检查全部练习。 |
+| `q` | 退出。 |
 
-Piped input and unsupported terminals fall back to line input. A passing
-exercise remains current until you press `n`.
+管道输入和不支持的终端会回退为按行输入。练习通过后仍会停留在当前题，直到你按下
+`n`。
 
-## Exercise list
+## 练习列表
 
-Press `l` in watch mode, then use `j`/`k` or the arrow keys to move. Press Enter
-or `c` to continue at the selected exercise, and `q` or Escape to return. The
-selection is restored the next time watch starts.
+在 watch 中按 `l`，然后使用 `j`/`k` 或方向键移动。按 Enter 或 `c` 继续选中的
+练习，按 `q` 或 Escape 返回。下次启动 watch 时会恢复上次选中的练习。
 
-## Editor integration
+## 编辑器集成
 
-In an interactive VS Code terminal, watch opens the current source with
-`code --reuse-window`. To use another editor, set `EDIT_CMD`:
+在 VS Code 的交互式终端中，watch 会通过 `code --reuse-window` 打开当前源码。
+可以设置 `EDIT_CMD` 使用其他编辑器：
 
 ```bash
 EDIT_CMD="zed {file}" moon run cmd/moonbitlings --
 ```
 
-`{file}` is replaced with the relative source path. If the placeholder is
-absent, the path is appended. The command is split into space-separated
-arguments and is not passed through a shell, so arguments containing spaces
-are not supported.
+`{file}` 会被替换为相对源码路径；如果没有占位符，路径会自动追加到命令末尾。命令
+不会经过 shell，而是按空格拆分参数，因此暂不支持包含空格的参数。
 
-The editor opens when watch starts, when `n` advances, and when an exercise is
-selected from the list. Launch failures are warnings and do not stop watch.
-Use `--no-editor` to disable this behavior. The printed relative `File:` path
-can also be clicked in terminals that recognize file paths.
+首次进入 watch、按 `n` 前进以及从列表选择练习时都会打开编辑器。启动失败只会显示
+警告，不会中断 watch。使用 `--no-editor` 可以禁用此行为，也可以在支持识别文件路径
+的终端中点击输出的相对 `File:` 路径。
 
-Raw terminal settings are restored on normal exit, errors, and cancellation.
+无论正常退出、发生错误还是任务取消，原始终端设置都会恢复。

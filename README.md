@@ -36,9 +36,9 @@ file, save it, and moonbitlings will verify it automatically. Run
 
 ## Documentation
 
-Read the [complete documentation](docs/index.md) for the learning workflow,
+Read the [complete documentation](docs/en/index.md) for the learning workflow,
 CLI reference, watch controls, editor setup, progress state, architecture, and
-development instructions. [中文文档](docs/zh-CN/index.md) is also available.
+development instructions. [中文文档](docs/index.md) is also available.
 
 moonbitlings is an independent community tool. It is not affiliated with the
 MoonBit team or with Rustlings, and completing its exercises is not a claim of

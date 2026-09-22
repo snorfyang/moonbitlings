@@ -35,7 +35,7 @@ moon run cmd/moonbitlings --
 ## 文档
 
 完整的学习流程、CLI 参考、watch 操作、编辑器配置、进度状态、架构和开发说明请参阅
-[中文文档](docs/zh-CN/index.md)，也可以阅读 [English documentation](docs/index.md)。
+[中文文档](docs/index.md)，也可以阅读 [English documentation](docs/en/index.md)。
 
 moonbitlings 是一个独立的社区工具，与 MoonBit 团队或 Rustlings 均无隶属关系；
 完成全部练习也不代表已经掌握这门语言。

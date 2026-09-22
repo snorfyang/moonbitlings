@@ -1,53 +1,48 @@
-# Project internals
+# 项目内部机制
 
-[Documentation home](index.md) | [简体中文](zh-CN/project.md)
+[文档首页](index.md) | [English](en/project.md)
 
-## Verification and metadata
+## 验证与元数据
 
-moonbitlings uses the official MoonBit toolchain as its verifier. It runs
-`moon check` for `check` exercises or `moon test` for `test` exercises in each
-exercise's module directory. It does not fork or reimplement the compiler.
+moonbitlings 使用官方 MoonBit 工具链进行验证。它会在每道练习自己的模块目录中，
+对 `check` 类型练习运行 `moon check`，对 `test` 类型练习运行 `moon test`，不会
+复制或重新实现编译器。
 
-Exercise metadata is stored as versioned, human-editable JSON in
-`exercises/manifest.json`.
+练习元数据位于 `exercises/manifest.json`，使用带版本、便于人工编辑的 JSON 格式。
 
-## Progress state
+## 进度状态
 
-Progress is stored separately from exercise sources in
-`.moonbitlings-state.json` at the repository root:
+进度与练习源码分离，保存在仓库根目录的 `.moonbitlings-state.json` 中：
 
 ```json
 { "version": 2, "done": ["01_hello", "02_add"], "current": "03_sum_to" }
 ```
 
-The `version` field guards the format. Corrupt files and unsupported versions
-are reported explicitly. Version 1 files remain readable and gain `current`
-when watch next saves them. Deleting the state file resets progress and the
-current selection without affecting exercise sources.
+`version` 字段用于保护文件格式。文件损坏或版本不受支持时会明确报错。版本 1 的状态
+文件仍然可以读取，并会在 watch 下次保存时增加 `current`。删除状态文件只会重置
+完成进度和当前选题，不会影响练习源码。
 
-## Repository layout
+## 仓库结构
 
 ```text
-moon.mod                  module definition
-manifest.mbt              exercise manifest model and JSON parsing
-verifier.mbt              toolchain driver and result rendering
-state.mbt                 progress state and list rendering
-cmd/moonbitlings/         CLI executable
-exercises/                exercise modules and manifest.json
-test_fixtures/            passing and failing fixtures used by tests
+moon.mod                  模块定义
+manifest.mbt              练习清单模型和 JSON 解析
+verifier.mbt              工具链驱动和结果渲染
+state.mbt                 进度状态和列表渲染
+cmd/moonbitlings/         CLI 可执行程序
+exercises/                练习模块和 manifest.json
+test_fixtures/            测试使用的通过和失败样例
 ```
 
-## Related project
+## 相关项目
 
-moonbitlings complements the official
-[moonbit/MPI-exercise](https://github.com/moonbit/MPI-exercise) course rather
-than duplicating it. That project provides plain `moon test` suites;
-moonbitlings adds an interactive CLI, hints, and progress tracking. All
-moonbitlings exercises are original.
+moonbitlings 是对官方 [moonbit/MPI-exercise](https://github.com/moonbit/MPI-exercise)
+课程的补充，而不是重复。后者提供直接使用 `moon test` 的测试套件；moonbitlings
+增加了交互式 CLI、提示和进度跟踪。moonbitlings 中的全部练习均为原创。
 
-## Development
+## 开发
 
-Run the complete check suite before committing a release:
+发布前需要运行完整检查：
 
 ```bash
 moon fmt --check
@@ -58,5 +53,5 @@ git diff --check
 scripts/cli_blackbox.sh
 ```
 
-To release, run these checks, bump `version` in `moon.mod`, then create and push
-the release tag to the configured remote.
+发布时，先运行上述检查，再更新 `moon.mod` 中的 `version`，最后创建发布标签并推送到
+已配置的远程仓库。
