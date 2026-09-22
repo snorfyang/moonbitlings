@@ -80,6 +80,13 @@ def main() -> int:
 
     os.write(master, b"l")
     output = wait_for(master, output, b"[Enter/c] continue", 2)
+    os.write(master, b"r")
+    output = wait_for(master, output, b"Reset 00_intro to its original source? [y/N]", 2)
+    if b"Reset 00_intro to its original source? [y/N]" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch list did not ask before resetting", file=sys.stderr)
+        return 1
+    os.write(master, b"n")
     os.write(master, b"p")
     output = wait_for(master, output, "Exercises — pending".encode(), 2)
     if b"> [pending] 01_hello" not in output:

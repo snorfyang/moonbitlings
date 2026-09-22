@@ -151,6 +151,21 @@ expect "list marks the fixed exercise done" 0 --contains "[done] 01_hello" -- li
 expect "list filters done exercises" 0 --contains "[done] 01_hello" -- list --done
 expect_input "watch advances only after next" 0 $'n\nq\n' "checking 02_add" -- watch 01_hello
 expect "reset marks an exercise pending" 0 --contains "01_hello reset" -- reset 01_hello
+expect "verify restores done state for list reset" 0 --contains "passed" -- verify 01_hello
+expect_input "watch list cancels source reset" 0 $'l\nr\nn\nq\n' "Reset 01_hello to its original source? [y/N]" -- watch 01_hello --no-editor
+if ! grep -qF '42' exercises/01_hello/main.mbt; then
+  echo "FAIL: cancelled watch list reset changed the exercise source"
+  fail=$((fail + 1))
+else
+  echo "ok: cancelled watch list reset preserves the exercise source"
+fi
+expect_input "watch list restores selected source" 0 $'l\nr\ny\nq\n' "exercise 01_hello source restored" -- watch 01_hello --no-editor
+if ! grep -qF '"hello"' exercises/01_hello/main.mbt; then
+  echo "FAIL: watch list reset did not restore the original source"
+  fail=$((fail + 1))
+else
+  echo "ok: watch list reset restores the original source"
+fi
 expect "list shows a reset exercise pending" 0 --contains "[pending] 01_hello" -- list
 
 printf '///\nfn main {\n  println("exercise ran")\n}\n' > exercises/01_hello/main.mbt

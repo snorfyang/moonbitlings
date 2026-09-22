@@ -44,6 +44,7 @@ enum WatchListAction {
   MoveUp
   MoveDown
   Select
+  ResetSelected
   Back
   SetFilter(@lib.ListFilter)
   Ignore
@@ -51,9 +52,16 @@ enum WatchListAction {
 
 ///|
 enum WatchListResult {
-  Selected(Int)
-  Returned
+  Selected(Int, @lib.State)
+  Returned(@lib.State)
   InputClosed
+}
+
+///|
+enum ResetConfirmation {
+  Confirmed
+  Cancelled
+  ConfirmationInputClosed
 }
 
 ///|
@@ -587,6 +595,7 @@ fn parse_watch_list_action(line : String) -> WatchListAction {
     "k" | "up" => MoveUp
     "j" | "down" => MoveDown
     "" | "enter" | "c" | "continue" => Select
+    "r" | "reset" => ResetSelected
     "q" | "esc" | "back" => Back
     "a" | "all" => SetFilter(@lib.All)
     "p" | "pending" => SetFilter(@lib.Pending)
@@ -666,10 +675,45 @@ fn render_watch_list(
     )
   }
   buf.write_string(
-    "\n[a] all  [p] pending  [d] done\n" +
+    "\n[a] all  [p] pending  [d] done  [r] reset selected\n" +
     "[j/k or ↑/↓] move  [Enter/c] continue  [q/Esc] back",
   )
   buf.to_string()
+}
+
+///|
+async fn restore_exercise_source(id : String) -> Result[Unit, String] {
+  let template = "templates/exercises/\{id}/main.mbt"
+  let target = "\{@lib.exercise_dir(id)}/main.mbt"
+  let source = @fs.read_file(template).text() catch {
+    err => return Err("cannot read original source for \{id}: \{err}")
+  }
+  try {
+    @fs.write_file(target, source)
+    Ok(())
+  } catch {
+    err => Err("cannot restore source for \{id}: \{err}")
+  }
+}
+
+///|
+async fn confirm_watch_reset(
+  events : @aqueue.Queue[WatchEvent],
+  id : String,
+) -> ResetConfirmation {
+  emit("Reset \{id} to its original source? [y/N]")
+  for ;; {
+    match events.get() {
+      Input(None) => return ConfirmationInputClosed
+      SourceChanged(_) => ()
+      Input(Some(input)) =>
+        return if input.trim().to_owned() == "y" {
+          Confirmed
+        } else {
+          Cancelled
+        }
+    }
+  }
 }
 
 ///|
@@ -679,6 +723,7 @@ async fn run_watch_list(
   state : @lib.State,
   current : Int,
 ) -> WatchListResult {
+  let mut state = state
   let mut selected = current
   let mut filter = @lib.All
   let mut indices = watch_list_indices(manifest, state, filter)
@@ -702,8 +747,48 @@ async fn run_watch_list(
               selected = indices[cursor]
               emit(render_watch_list(manifest, state, indices, cursor, filter))
             }
-          Select => if !indices.is_empty() { return Selected(selected) }
-          Back => return Returned
+          Select => if !indices.is_empty() { return Selected(selected, state) }
+          ResetSelected =>
+            if !indices.is_empty() {
+              let exercise = manifest.exercises[selected]
+              match confirm_watch_reset(events, exercise.id) {
+                ConfirmationInputClosed => return InputClosed
+                Cancelled =>
+                  emit(
+                    render_watch_list(manifest, state, indices, cursor, filter),
+                  )
+                Confirmed =>
+                  match restore_exercise_source(exercise.id) {
+                    Err(message) => {
+                      emit("error: \{message}")
+                      emit(
+                        render_watch_list(
+                          manifest, state, indices, cursor, filter,
+                        ),
+                      )
+                    }
+                    Ok(_) => {
+                      state = state.mark_pending(exercise.id)
+                      match save_state(state_path, state) {
+                        Err(message) => emit("warning: \{message}")
+                        Ok(_) => ()
+                      }
+                      emit("exercise \{exercise.id} source restored")
+                      indices = watch_list_indices(manifest, state, filter)
+                      cursor = watch_list_cursor(indices, selected)
+                      if !indices.is_empty() {
+                        selected = indices[cursor]
+                      }
+                      emit(
+                        render_watch_list(
+                          manifest, state, indices, cursor, filter,
+                        ),
+                      )
+                    }
+                  }
+              }
+            }
+          Back => return Returned(state)
           SetFilter(next_filter) => {
             filter = next_filter
             indices = watch_list_indices(manifest, state, filter)
@@ -948,7 +1033,8 @@ async fn run_watch(
             ShowList => {
               match run_watch_list(events, manifest, state, index) {
                 InputClosed => group.return_immediately(0)
-                Selected(selected) => {
+                Selected(selected, updated) => {
+                  state = updated
                   index = selected
                   watched_dir.val = @lib.exercise_dir(
                     manifest.exercises[index].id,
@@ -959,7 +1045,7 @@ async fn run_watch(
                     raw_input,
                   )
                 }
-                Returned => ()
+                Returned(updated) => state = updated
               }
               match verify_watch_exercise(manifest, state, index) {
                 Err(message) => {

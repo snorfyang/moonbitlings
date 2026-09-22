@@ -20,6 +20,8 @@ pub enum Command {
 
 type EditorCommand
 
+type ResetConfirmation
+
 type WatchAction
 
 type WatchEvent

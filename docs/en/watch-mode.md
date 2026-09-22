@@ -24,8 +24,10 @@ exercise remains current until you press `n`.
 
 Press `l` in watch mode, then use `j`/`k` or the arrow keys to move. Press `a`,
 `p`, or `d` to show all, pending, or completed exercises. Press Enter or `c` to
-continue at the selected exercise, and `q` or Escape to return. The selection
-is restored the next time watch starts.
+continue at the selected exercise, and `q` or Escape to return. Press `r` and
+confirm to overwrite the selected exercise's `main.mbt` with the original copy
+shipped with the project and mark it pending. Cancelling leaves the source
+unchanged. The selection is restored the next time watch starts.
 
 ## Editor integration
 

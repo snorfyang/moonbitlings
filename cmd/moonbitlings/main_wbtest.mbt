@@ -97,6 +97,7 @@ test "parse_watch_list_action accepts navigation commands" {
   assert_true(parse_watch_list_action("down") is MoveDown)
   assert_true(parse_watch_list_action("\n") is Select)
   assert_true(parse_watch_list_action("c") is Select)
+  assert_true(parse_watch_list_action("r") is ResetSelected)
   assert_true(parse_watch_list_action("esc") is Back)
   assert_true(parse_watch_list_action("a") is SetFilter(@lib.All))
   assert_true(parse_watch_list_action("p") is SetFilter(@lib.Pending))
@@ -144,6 +145,11 @@ test "watch view shows progress current file and actions" {
 }
 
 ///|
+async test "restoring an exercise reports a missing original" {
+  assert_true(restore_exercise_source("missing") is Err(_))
+}
+
+///|
 test "watch list marks selection and resumes persisted current" {
   let manifest : @lib.Manifest = {
     exercises: [
@@ -156,6 +162,7 @@ test "watch list marks selection and resumes persisted current" {
   let rendered = render_watch_list(manifest, state, all, 1, @lib.All)
   assert_true(rendered.contains("  [done] a - First"))
   assert_true(rendered.contains("> [pending] b - Second"))
+  assert_true(rendered.contains("[r] reset selected"))
   let pending = watch_list_indices(manifest, state, @lib.Pending)
   assert_eq(pending, [1])
   assert_true(
