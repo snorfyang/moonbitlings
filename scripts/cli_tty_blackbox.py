@@ -56,10 +56,18 @@ def main() -> int:
         os.execve(executable, [executable, "watch"], environment)
 
     os.close(slave)
-    output = wait_for(master, b"", b"[q] quit", 10)
-    if b"[q] quit" not in output:
+    output = wait_for(master, b"", b"q:quit", 10)
+    if b"q:quit" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not reach its prompt", file=sys.stderr)
+        return 1
+    if b"Learn MoonBit one small exercise at a time" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch did not show its welcome", file=sys.stderr)
+        return 1
+    if b"Progress: [------------------------] 0/12 done" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch did not show its progress bar", file=sys.stderr)
         return 1
     if b"editor-open exercises/01_hello/main.mbt" not in output:
         stop_child(pid)

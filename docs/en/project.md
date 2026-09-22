@@ -45,6 +45,12 @@ than duplicating it. That project provides plain `moon test` suites;
 moonbitlings adds an interactive CLI, hints, and progress tracking. All
 moonbitlings exercises are original.
 
+The information hierarchy of interactive watch mode is informed by public UX
+conventions from [Rustlings](https://github.com/rust-lang/rustlings), including
+its progress bar, current-file display, and single-key prompt. The
+implementation and wording are original; no Rustlings source or exercise
+content is copied. Rustlings is MIT-licensed.
+
 ## Development
 
 Run the complete check suite before committing a release:

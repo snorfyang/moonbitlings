@@ -40,6 +40,11 @@ moonbitlings 是对官方 [moonbit/MPI-exercise](https://github.com/moonbit/MPI-
 课程的补充，而不是重复。后者提供直接使用 `moon test` 的测试套件；moonbitlings
 增加了交互式 CLI、提示和进度跟踪。moonbitlings 中的全部练习均为原创。
 
+交互式 watch 的信息层级参考了
+[Rustlings](https://github.com/rust-lang/rustlings) 的公开 UX 惯例，包括进度条、当前
+文件和单键操作提示。实现与文案均为原创，未复制 Rustlings 源码或练习内容；Rustlings
+采用 MIT 许可证。
+
 ## 开发
 
 发布前需要运行完整检查：

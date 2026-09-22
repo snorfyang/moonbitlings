@@ -72,6 +72,15 @@ let manifest_path = "exercises/manifest.json"
 let state_path = ".moonbitlings-state.json"
 
 ///|
+let watch_welcome =
+  #|==================================================
+  #|  moonbitlings
+  #|  Learn MoonBit one small exercise at a time.
+  #|==================================================
+  #|
+  #|Edit the current file and save it to check your work.
+
+///|
 /// Parse the command line into a command.
 pub fn parse_command(args : Array[String]) -> Result[Command, String] {
   if args.is_empty() {
@@ -528,6 +537,19 @@ fn initial_watch_index(manifest : @lib.Manifest, state : @lib.State) -> Int? {
 }
 
 ///|
+fn render_progress_bar(done : Int, total : Int) -> String {
+  let width = 24
+  let filled = if total == 0 { 0 } else { done * width / total }
+  let buf = StringBuilder()
+  buf.write_char('[')
+  for index = 0; index < width; index = index + 1 {
+    buf.write_char(if index < filled { '#' } else { '-' })
+  }
+  buf.write_char(']')
+  buf.to_string()
+}
+
+///|
 fn render_watch_header(
   manifest : @lib.Manifest,
   state : @lib.State,
@@ -541,7 +563,9 @@ fn render_watch_header(
     }
   }
   let exercise = manifest.exercises[index]
-  "moonbitlings — \{done}/\{manifest.exercises.length()} done\n\n" +
+  "--------------------------------------------------\n" +
+  "Progress: \{render_progress_bar(done, manifest.exercises.length())} " +
+  "\{done}/\{manifest.exercises.length()} done\n" +
   "Current: \{exercise.id} — \{exercise.title}\n" +
   "File:    \{@lib.exercise_dir(exercise.id)}/main.mbt\n" +
   "Status: \{status}"
@@ -550,9 +574,9 @@ fn render_watch_header(
 ///|
 fn render_watch_prompt(passed : Bool) -> String {
   if passed {
-    "[h] hint  [r] recheck  [n] next  [l] list  [c] check all  [q] quit"
+    "h:hint / r:recheck / n:next / l:list / c:check all / q:quit"
   } else {
-    "[h] hint  [r] recheck  [l] list  [c] check all  [q] quit"
+    "h:hint / r:recheck / l:list / c:check all / q:quit"
   }
 }
 
@@ -777,6 +801,9 @@ async fn run_watch(
   let events : @aqueue.Queue[WatchEvent] = @aqueue.Queue(kind=@aqueue.Unbounded)
   let raw_input = enable_raw_input() == 1
   defer restore_input()
+  if raw_input {
+    emit(watch_welcome)
+  }
   maybe_open_editor(manifest.exercises[index].id, no_editor, raw_input)
   @async.with_task_group <| group => {
     group.spawn_bg(() => read_watch_input(events, raw_input))

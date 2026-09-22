@@ -129,13 +129,15 @@ test "watch view shows progress current file and actions" {
   }
   let state = @lib.State::empty().mark_done("a")
   let header = render_watch_header(manifest, state, 1, "failing")
+  assert_true(watch_welcome.contains("Learn MoonBit"))
+  assert_true(header.contains("[############------------]"))
   assert_true(header.contains("1/2 done"))
   assert_true(header.contains("b — Second"))
   assert_true(header.contains("exercises/b/main.mbt"))
   assert_true(header.contains("Status: failing"))
-  assert_true(render_watch_prompt(false).contains("[h] hint"))
-  assert_false(render_watch_prompt(false).contains("[n] next"))
-  assert_true(render_watch_prompt(true).contains("[n] next"))
+  assert_true(render_watch_prompt(false).contains("h:hint"))
+  assert_false(render_watch_prompt(false).contains("n:next"))
+  assert_true(render_watch_prompt(true).contains("n:next"))
 }
 
 ///|
