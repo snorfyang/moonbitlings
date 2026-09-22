@@ -53,5 +53,12 @@ git diff --check
 scripts/cli_blackbox.sh
 ```
 
+## 发布文档站点
+
+`.github/workflows/pages.yml` 会在 `main` 分支的 `docs/` 内容变化后，使用 Jekyll
+构建并发布 GitHub Pages；也可以从 Actions 页面手动运行。首次发布前，需要在仓库的
+Settings → Pages 中将 Source 设为 GitHub Actions。站点根路径默认显示中文，英文文档
+位于 `/en/`。
+
 发布时，先运行上述检查，再更新 `moon.mod` 中的 `version`，最后创建发布标签并推送到
 已配置的远程仓库。

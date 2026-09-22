@@ -1,0 +1,12 @@
+title: moonbitlings
+description: MoonBit 交互式练习工具
+lang: zh-CN
+theme: jekyll-theme-minimal
+show_downloads: false
+
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: true

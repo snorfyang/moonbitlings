@@ -58,5 +58,13 @@ git diff --check
 scripts/cli_blackbox.sh
 ```
 
+## Publishing the documentation site
+
+`.github/workflows/pages.yml` builds and deploys GitHub Pages with Jekyll when
+content under `docs/` changes on `main`. It can also be run manually from the
+Actions tab. Before the first deployment, set Settings → Pages → Source to
+GitHub Actions. The site root is Chinese by default; English documentation is
+available under `/en/`.
+
 To release, run these checks, bump `version` in `moon.mod`, then create and push
 the release tag to the configured remote.
