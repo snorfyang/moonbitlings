@@ -98,6 +98,9 @@ test "parse_watch_list_action accepts navigation commands" {
   assert_true(parse_watch_list_action("\n") is Select)
   assert_true(parse_watch_list_action("c") is Select)
   assert_true(parse_watch_list_action("esc") is Back)
+  assert_true(parse_watch_list_action("a") is SetFilter(@lib.All))
+  assert_true(parse_watch_list_action("p") is SetFilter(@lib.Pending))
+  assert_true(parse_watch_list_action("d") is SetFilter(@lib.Done))
   assert_true(parse_watch_list_action("wat") is Ignore)
   assert_eq(move_list_selection(0, -1, 3), 2)
   assert_eq(move_list_selection(2, 1, 3), 0)
@@ -149,9 +152,20 @@ test "watch list marks selection and resumes persisted current" {
     ],
   }
   let state = @lib.State::empty().mark_done("a").with_current("b")
-  let rendered = render_watch_list(manifest, state, 1)
+  let all = watch_list_indices(manifest, state, @lib.All)
+  let rendered = render_watch_list(manifest, state, all, 1, @lib.All)
   assert_true(rendered.contains("  [done] a - First"))
   assert_true(rendered.contains("> [pending] b - Second"))
+  let pending = watch_list_indices(manifest, state, @lib.Pending)
+  assert_eq(pending, [1])
+  assert_true(
+    render_watch_list(manifest, state, pending, 0, @lib.Pending).contains(
+      "Exercises — pending",
+    ),
+  )
+  let done = watch_list_indices(manifest, state, @lib.Done)
+  assert_eq(done, [0])
+  assert_eq(watch_list_cursor(pending, 1), 0)
   assert_eq(initial_watch_index(manifest, state), Some(1))
   let stale = state.with_current("missing")
   assert_eq(initial_watch_index(manifest, stale), Some(1))

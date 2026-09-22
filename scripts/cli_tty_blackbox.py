@@ -80,6 +80,20 @@ def main() -> int:
 
     os.write(master, b"l")
     output = wait_for(master, output, b"[Enter/c] continue", 2)
+    os.write(master, b"p")
+    output = wait_for(master, output, "Exercises — pending".encode(), 2)
+    if b"> [pending] 01_hello" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch list did not filter pending exercises", file=sys.stderr)
+        return 1
+    os.write(master, b"d")
+    output = wait_for(master, output, "Exercises — done".encode(), 2)
+    if b"> [done] 00_intro" not in output:
+        stop_child(pid)
+        print("FAIL: TTY watch list did not filter done exercises", file=sys.stderr)
+        return 1
+    os.write(master, b"a")
+    output = wait_for(master, output, "Exercises — all".encode(), 2)
     os.write(master, b"\x1b[B")
     output = wait_for(master, output, b"> [pending] 01_hello", 2)
     if b"> [pending] 01_hello" not in output:

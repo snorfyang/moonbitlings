@@ -22,9 +22,10 @@ exercise remains current until you press `n`.
 
 ## Exercise list
 
-Press `l` in watch mode, then use `j`/`k` or the arrow keys to move. Press Enter
-or `c` to continue at the selected exercise, and `q` or Escape to return. The
-selection is restored the next time watch starts.
+Press `l` in watch mode, then use `j`/`k` or the arrow keys to move. Press `a`,
+`p`, or `d` to show all, pending, or completed exercises. Press Enter or `c` to
+continue at the selected exercise, and `q` or Escape to return. The selection
+is restored the next time watch starts.
 
 ## Editor integration
 

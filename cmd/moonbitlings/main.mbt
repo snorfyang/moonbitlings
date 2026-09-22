@@ -45,6 +45,7 @@ enum WatchListAction {
   MoveDown
   Select
   Back
+  SetFilter(@lib.ListFilter)
   Ignore
 }
 
@@ -587,6 +588,9 @@ fn parse_watch_list_action(line : String) -> WatchListAction {
     "j" | "down" => MoveDown
     "" | "enter" | "c" | "continue" => Select
     "q" | "esc" | "back" => Back
+    "a" | "all" => SetFilter(@lib.All)
+    "p" | "pending" => SetFilter(@lib.Pending)
+    "d" | "done" => SetFilter(@lib.Done)
     _ => Ignore
   }
 }
@@ -604,22 +608,67 @@ fn move_list_selection(index : Int, delta : Int, length : Int) -> Int {
 }
 
 ///|
+fn watch_list_indices(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  filter : @lib.ListFilter,
+) -> Array[Int] {
+  let indices : Array[Int] = []
+  for index = 0; index < manifest.exercises.length(); index = index + 1 {
+    let is_done = state.is_done(manifest.exercises[index].id)
+    let visible = match filter {
+      @lib.All => true
+      @lib.Pending => !is_done
+      @lib.Done => is_done
+    }
+    if visible {
+      indices.push(index)
+    }
+  }
+  indices
+}
+
+///|
+fn watch_list_cursor(indices : Array[Int], selected : Int) -> Int {
+  for index = 0; index < indices.length(); index = index + 1 {
+    if indices[index] == selected {
+      return index
+    }
+  }
+  0
+}
+
+///|
 fn render_watch_list(
   manifest : @lib.Manifest,
   state : @lib.State,
-  selected : Int,
+  indices : Array[Int],
+  cursor : Int,
+  filter : @lib.ListFilter,
 ) -> String {
   let buf = StringBuilder()
-  buf.write_string("Exercises\n\n")
-  for index = 0; index < manifest.exercises.length(); index = index + 1 {
+  let filter_name = match filter {
+    @lib.All => "all"
+    @lib.Pending => "pending"
+    @lib.Done => "done"
+  }
+  buf.write_string("Exercises — \{filter_name}\n\n")
+  if indices.is_empty() {
+    buf.write_string("  No exercises match this filter.\n")
+  }
+  for position = 0; position < indices.length(); position = position + 1 {
+    let index = indices[position]
     let exercise = manifest.exercises[index]
-    let marker = if index == selected { ">" } else { " " }
+    let marker = if position == cursor { ">" } else { " " }
     let status = if state.is_done(exercise.id) { "done" } else { "pending" }
     buf.write_string(
       "\{marker} [\{status}] \{exercise.id} - \{exercise.title}\n",
     )
   }
-  buf.write_string("\n[j/k or ↑/↓] move  [Enter/c] continue  [q/Esc] back")
+  buf.write_string(
+    "\n[a] all  [p] pending  [d] done\n" +
+    "[j/k or ↑/↓] move  [Enter/c] continue  [q/Esc] back",
+  )
   buf.to_string()
 }
 
@@ -631,31 +680,39 @@ async fn run_watch_list(
   current : Int,
 ) -> WatchListResult {
   let mut selected = current
-  emit(render_watch_list(manifest, state, selected))
+  let mut filter = @lib.All
+  let mut indices = watch_list_indices(manifest, state, filter)
+  let mut cursor = watch_list_cursor(indices, selected)
+  emit(render_watch_list(manifest, state, indices, cursor, filter))
   for ;; {
     match events.get() {
       Input(None) => return InputClosed
       SourceChanged(_) => ()
       Input(Some(input)) =>
         match parse_watch_list_action(input) {
-          MoveUp => {
-            selected = move_list_selection(
-              selected,
-              -1,
-              manifest.exercises.length(),
-            )
-            emit(render_watch_list(manifest, state, selected))
-          }
-          MoveDown => {
-            selected = move_list_selection(
-              selected,
-              1,
-              manifest.exercises.length(),
-            )
-            emit(render_watch_list(manifest, state, selected))
-          }
-          Select => return Selected(selected)
+          MoveUp =>
+            if !indices.is_empty() {
+              cursor = move_list_selection(cursor, -1, indices.length())
+              selected = indices[cursor]
+              emit(render_watch_list(manifest, state, indices, cursor, filter))
+            }
+          MoveDown =>
+            if !indices.is_empty() {
+              cursor = move_list_selection(cursor, 1, indices.length())
+              selected = indices[cursor]
+              emit(render_watch_list(manifest, state, indices, cursor, filter))
+            }
+          Select => if !indices.is_empty() { return Selected(selected) }
           Back => return Returned
+          SetFilter(next_filter) => {
+            filter = next_filter
+            indices = watch_list_indices(manifest, state, filter)
+            cursor = watch_list_cursor(indices, selected)
+            if !indices.is_empty() {
+              selected = indices[cursor]
+            }
+            emit(render_watch_list(manifest, state, indices, cursor, filter))
+          }
           Ignore => ()
         }
     }
@@ -679,6 +736,9 @@ async fn read_watch_input(
           b'q' => Some("q")
           b'j' => Some("j")
           b'k' => Some("k")
+          b'a' => Some("a")
+          b'p' => Some("p")
+          b'd' => Some("d")
           b'\r' | b'\n' => Some("")
           b'\x1b' => {
             let second = @async.with_timeout_opt(50, () => {
