@@ -119,6 +119,24 @@
       "title": "Activity summary: review",
       "hint": "Track online names in a `@hashset.HashSet[String]`. Match each event: join adds a name, leave removes it, and a message counts only when its sender is online. Return the set length and message count.",
       "kind": "test"
+    },
+    {
+      "id": "20_first_even",
+      "title": "First even: finding an optional value",
+      "hint": "Visit the numbers in order. Return `Some(value)` for the first even number; if the loop finishes without one, return `None`.",
+      "kind": "test"
+    },
+    {
+      "id": "21_double_option",
+      "title": "Double an option: map",
+      "hint": "Use `value.map(x => x * 2)`. It changes `Some(x)` and keeps `None` as `None`.",
+      "kind": "test"
+    },
+    {
+      "id": "22_add_options",
+      "title": "Add options: bind and map",
+      "hint": "Use `left.bind(a => right.map(b => a + b))` so either missing value makes the result `None`.",
+      "kind": "test"
     }
   ]
 }
