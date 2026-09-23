@@ -62,7 +62,11 @@ moon test --deny-warn
 moon info
 git diff --check
 scripts/cli_blackbox.sh
+python3 scripts/check_curriculum.py
 ```
+
+The curriculum check verifies that each reset template matches its starter,
+unfinished starters fail, and reference solutions pass in temporary copies.
 
 ## Publishing the documentation site
 

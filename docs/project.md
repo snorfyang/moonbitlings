@@ -56,7 +56,10 @@ moon test --deny-warn
 moon info
 git diff --check
 scripts/cli_blackbox.sh
+python3 scripts/check_curriculum.py
 ```
+
+课程检查会核对重置模板与初始源码一致，并在临时副本中验证未完成题目失败、参考解通过。
 
 ## 发布文档站点
 
