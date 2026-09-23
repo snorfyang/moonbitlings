@@ -1,0 +1,4 @@
+// Exercise 19_activity_summary package.
+import {
+  "moonbitlang/core/hashset",
+}

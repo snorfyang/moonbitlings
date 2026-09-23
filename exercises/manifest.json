@@ -113,6 +113,12 @@
       "title": "Word frequencies: update a hash map",
       "hint": "For each word, read its current count with `counts.get(word).unwrap_or(0)`, then store that count plus one with `counts.set(word, ...)`.",
       "kind": "test"
+    },
+    {
+      "id": "19_activity_summary",
+      "title": "Activity summary: review",
+      "hint": "Track online names in a `@hashset.HashSet[String]`. Match each event: join adds a name, leave removes it, and a message counts only when its sender is online. Return the set length and message count.",
+      "kind": "test"
     }
   ]
 }

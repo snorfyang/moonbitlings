@@ -65,7 +65,7 @@ def main() -> int:
         stop_child(pid)
         print("FAIL: TTY watch did not show its welcome", file=sys.stderr)
         return 1
-    if b"Progress: [#-----------------------] 1/19 done" not in output:
+    if b"Progress: [#-----------------------] 1/20 done" not in output:
         stop_child(pid)
         print("FAIL: TTY watch did not show its progress bar", file=sys.stderr)
         return 1
