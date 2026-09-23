@@ -95,6 +95,24 @@
       "title": "Redact digits: text processing",
       "hint": "Create a `StringBuilder`, iterate over `text.iter()`, write `'*'` for each `char.is_ascii_digit()` and otherwise write the original char, then call `to_string()`.",
       "kind": "test"
+    },
+    {
+      "id": "16_score_lookup",
+      "title": "Score lookup: hash maps",
+      "hint": "Build a `@hashmap.HashMap` from `scores`, then return `map.get(name)`. Missing keys return `None`.",
+      "kind": "test"
+    },
+    {
+      "id": "17_unique_count",
+      "title": "Unique count: hash sets",
+      "hint": "Create an empty `@hashset.HashSet[Int]`, add each number in `values`, then return `set.length()`.",
+      "kind": "test"
+    },
+    {
+      "id": "18_word_frequencies",
+      "title": "Word frequencies: update a hash map",
+      "hint": "For each word, read its current count with `counts.get(word).unwrap_or(0)`, then store that count plus one with `counts.set(word, ...)`.",
+      "kind": "test"
     }
   ]
 }

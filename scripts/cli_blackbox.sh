@@ -99,13 +99,16 @@ expect_input() {
 expect "list shows both exercises pending" 0 --contains "[pending] 01_hello" -- list
 expect "list filters pending exercises" 0 --contains "[pending] 01_hello" -- list --pending
 expect "list includes the final string exercise" 0 --contains "[pending] 15_redact_digits" -- list
+expect "list includes the final hash map exercise" 0 --contains "[pending] 18_word_frequencies" -- list
 expect "list accepts an empty done filter" 0 -- list --done
 expect "hint prints a hint" 0 --contains "Replace the string" -- hint 01_hello
 expect "string hint describes Unicode iteration" 0 --contains "UTF-16 code units" -- hint 14_character_count
+expect "hash map hint describes count updates" 0 --contains "unwrap_or(0)" -- hint 18_word_frequencies
 expect "--help prints usage" 0 --contains "usage:" -- --help
 expect "verify a broken check exercise" 1 -- verify 01_hello
 expect "verify a broken test exercise" 1 -- verify 02_add
 expect "verify a broken string exercise" 1 -- verify 15_redact_digits
+expect "verify a broken hash map exercise" 1 -- verify 18_word_frequencies
 expect "verify without an id completes the introduction" 0 --contains "00_intro passed" -- verify
 expect "hint without an id shows the next exercise" 0 --contains "Hint for 01_hello" -- hint
 expect "run rejects a non-main exercise" 1 --contains "failed to run" -- run 01_hello

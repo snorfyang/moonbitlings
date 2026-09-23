@@ -11,10 +11,10 @@ hint / 自动打开编辑器 / 一条命令安装）。
 
 ## 现状快照
 
-- 1 道入门引导和 15 道主题练习（含 3 道字符串练习），`list`/`verify [id]`/
+- 1 道入门引导和 18 道主题练习（含字符串与哈希集合练习），`list`/`verify [id]`/
   `hint [id]`/`run [id]`/`reset [id]`/`check-all`/`watch [id]` 七个命令可用，
-  进度状态带版本号，
-  39 个主包测试 + 进程级黑盒脚本在本地通过，并由 GitHub Actions 持续验证。
+  进度状态带版本号；39 个主包测试 + 进程级黑盒脚本在本地通过，并由 GitHub Actions
+  持续验证。
 - 判定器、解析层、状态层已分层；每题是独立 module，不影响主包 CI。
 - 裸命令进入交互式 watch；会话内可提示、重跑、前进、列题、全量检查和退出。
 
@@ -79,7 +79,7 @@ struct / enum+模式匹配 / Option / Result / 泛型 / trait / 高阶函数 / �
 
 ### P2-2 新主题（按 MoonBit 特性优先级）
 1. strings 与字符串操作（已加入插值、Unicode 字符计数和 ASCII 数字替换）
-2. Map / Set（哈希表）
+2. Map / Set（已加入哈希表查询、集合去重和词频统计）
 3. modules / packages / 可见性（pub / priv）
 4. iterators / 迭代器与组合子
 5. tests（练习里写测试、`inspect`/快照）

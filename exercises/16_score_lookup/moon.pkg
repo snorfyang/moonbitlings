@@ -1,0 +1,4 @@
+// Exercise 16_score_lookup package.
+import {
+  "moonbitlang/core/hashmap",
+}

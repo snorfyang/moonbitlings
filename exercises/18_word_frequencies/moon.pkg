@@ -1,0 +1,4 @@
+// Exercise 18_word_frequencies package.
+import {
+  "moonbitlang/core/hashmap",
+}
