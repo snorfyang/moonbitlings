@@ -1,0 +1,4 @@
+// Consumer package for exercise 27_public_function.
+import {
+  "snorfyang/moonbitlings-ex27" @lesson,
+} for "test"

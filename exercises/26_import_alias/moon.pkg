@@ -1,0 +1,4 @@
+// Exercise 26_import_alias package.
+import {
+  "snorfyang/moonbitlings-ex26/helper" @math,
+}

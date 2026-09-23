@@ -1,0 +1,4 @@
+// Consumer package for exercise 28_public_struct.
+import {
+  "snorfyang/moonbitlings-ex28" @lesson,
+} for "test"

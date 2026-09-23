@@ -155,6 +155,24 @@
       "title": "Convert a raised error to Result",
       "hint": "Wrap successful division with `Ok(checked_divide(a, b))`, then use `catch { error => Err(error) }` for a raised error.",
       "kind": "test"
+    },
+    {
+      "id": "26_import_alias",
+      "title": "Import a helper package",
+      "hint": "Call the exported function as `@math.double(value)`. The `@math` alias comes from the root `moon.pkg`.",
+      "kind": "test"
+    },
+    {
+      "id": "27_public_function",
+      "title": "Export a function with pub",
+      "hint": "A function without `pub` is private to its package. Add `pub` to `double` so the consumer package can call `@lesson.double(value)`.",
+      "kind": "test"
+    },
+    {
+      "id": "28_public_struct",
+      "title": "Make a struct constructible across packages",
+      "hint": "`pub struct` exposes the type but does not let another package construct it. Use `pub(all) struct Point` so the consumer can construct `@lesson.Point::{ x: ..., y: ... }`.",
+      "kind": "test"
     }
   ]
 }
