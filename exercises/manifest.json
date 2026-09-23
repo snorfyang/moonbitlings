@@ -77,6 +77,24 @@
       "title": "Count evens: an array loop",
       "hint": "Iterate over `arr` and count elements where `x % 2 == 0`.",
       "kind": "test"
+    },
+    {
+      "id": "13_greeting",
+      "title": "Greeting: string interpolation",
+      "hint": "Return `\"Hello, \\{name}!\"` so the supplied name appears in the greeting.",
+      "kind": "test"
+    },
+    {
+      "id": "14_character_count",
+      "title": "Code point count: Unicode iteration",
+      "hint": "`text.length()` counts UTF-16 code units, so an emoji counts as two. Iterate over `text.iter()` and count each Unicode code point (`Char`) instead.",
+      "kind": "test"
+    },
+    {
+      "id": "15_redact_digits",
+      "title": "Redact digits: text processing",
+      "hint": "Create a `StringBuilder`, iterate over `text.iter()`, write `'*'` for each `char.is_ascii_digit()` and otherwise write the original char, then call `to_string()`.",
+      "kind": "test"
     }
   ]
 }
