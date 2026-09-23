@@ -548,7 +548,8 @@ fn initial_watch_index(manifest : @lib.Manifest, state : @lib.State) -> Int? {
 ///|
 fn render_progress_bar(done : Int, total : Int) -> String {
   let width = 24
-  let filled = if total == 0 { 0 } else { done * width / total }
+  let scaled = if total == 0 { 0 } else { done * width / total }
+  let filled = if done > 0 && scaled == 0 { 1 } else { scaled }
   let buf = StringBuilder()
   buf.write_char('[')
   for index = 0; index < width; index = index + 1 {

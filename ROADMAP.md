@@ -11,9 +11,9 @@ hint / 自动打开编辑器 / 一条命令安装）。
 
 ## 现状快照
 
-- 1 道入门引导、21 道主题练习和 1 道综合练习，`list`/`verify [id]`/
+- 1 道入门引导、24 道主题练习和 1 道综合练习，`list`/`verify [id]`/
   `hint [id]`/`run [id]`/`reset [id]`/`check-all`/`watch [id]` 七个命令可用，
-  进度状态带版本号；39 个主包测试 + 进程级黑盒脚本在本地通过，并由 GitHub Actions
+  进度状态带版本号；40 个主包测试 + 进程级黑盒脚本在本地通过，并由 GitHub Actions
   持续验证。
 - 判定器、解析层、状态层已分层；每题是独立 module，不影响主包 CI。
 - 裸命令进入交互式 watch；会话内可提示、重跑、前进、列题、全量检查和退出。
@@ -75,8 +75,9 @@ hint / 自动打开编辑器 / 一条命令安装）。
 目标：铺满 MoonBit 可映射的主题，每题 2~3 题、难度递增。
 
 ### P2-1 已覆盖主题补深（每个主题逐步补到 2~3 题）
-struct / enum+模式匹配 / Result / 泛型 / trait / 高阶函数 / 循环。Option 已有
-`Some`/`None`、查找、`map` 和 `bind` 的练习。
+struct / enum+模式匹配 / 泛型 / trait / 高阶函数 / 循环。Option 已有
+`Some`/`None`、查找、`map` 和 `bind` 的练习；错误处理已有
+`Result`、`suberror`、`raise`、`catch` 与错误转 `Result` 的练习。
 
 ### P2-2 新主题（按 MoonBit 特性优先级）
 1. strings 与字符串操作（已加入插值、Unicode 字符计数和 ASCII 数字替换）

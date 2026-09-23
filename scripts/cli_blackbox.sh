@@ -102,12 +102,14 @@ expect "list includes the final string exercise" 0 --contains "[pending] 15_reda
 expect "list includes the final hash map exercise" 0 --contains "[pending] 18_word_frequencies" -- list
 expect "list includes the review exercise" 0 --contains "[pending] 19_activity_summary" -- list
 expect "list includes the final Option exercise" 0 --contains "[pending] 22_add_options" -- list
+expect "list includes the final error exercise" 0 --contains "[pending] 25_error_to_result" -- list
 expect "list accepts an empty done filter" 0 -- list --done
 expect "hint prints a hint" 0 --contains "Replace the string" -- hint 01_hello
 expect "string hint describes Unicode iteration" 0 --contains "UTF-16 code units" -- hint 14_character_count
 expect "hash map hint describes count updates" 0 --contains "unwrap_or(0)" -- hint 18_word_frequencies
 expect "review hint describes online users" 0 --contains "online names" -- hint 19_activity_summary
 expect "Option hint describes missing values" 0 --contains "either missing value" -- hint 22_add_options
+expect "error hint describes conversion to Result" 0 --contains "Err(error)" -- hint 25_error_to_result
 expect "--help prints usage" 0 --contains "usage:" -- --help
 expect "verify a broken check exercise" 1 -- verify 01_hello
 expect "verify a broken test exercise" 1 -- verify 02_add
@@ -115,6 +117,7 @@ expect "verify a broken string exercise" 1 -- verify 15_redact_digits
 expect "verify a broken hash map exercise" 1 -- verify 18_word_frequencies
 expect "verify the unfinished review exercise" 1 -- verify 19_activity_summary
 expect "verify an unfinished Option exercise" 1 -- verify 22_add_options
+expect "verify an unfinished error exercise" 1 -- verify 25_error_to_result
 expect "verify without an id completes the introduction" 0 --contains "00_intro passed" -- verify
 expect "hint without an id shows the next exercise" 0 --contains "Hint for 01_hello" -- hint
 expect "run rejects a non-main exercise" 1 --contains "failed to run" -- run 01_hello

@@ -145,6 +145,11 @@ test "watch view shows progress current file and actions" {
 }
 
 ///|
+test "progress bar shows one completed exercise in a larger curriculum" {
+  assert_eq(render_progress_bar(1, 26), "[#-----------------------]")
+}
+
+///|
 async test "restoring an exercise reports a missing original" {
   assert_true(restore_exercise_source("missing") is Err(_))
 }

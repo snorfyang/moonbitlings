@@ -137,6 +137,24 @@
       "title": "Add options: bind and map",
       "hint": "Use `left.bind(a => right.map(b => a + b))` so either missing value makes the result `None`.",
       "kind": "test"
+    },
+    {
+      "id": "23_raise_negative",
+      "title": "Raise a typed error",
+      "hint": "When `value < 0`, use `raise NegativeValue(value)` so callers receive the invalid value in the error.",
+      "kind": "test"
+    },
+    {
+      "id": "24_catch_division",
+      "title": "Catch an error and use a fallback",
+      "hint": "Call `checked_divide(a, b)` and handle `DivisionByZero` with `catch { DivisionByZero => fallback }`. Successful division should return unchanged.",
+      "kind": "test"
+    },
+    {
+      "id": "25_error_to_result",
+      "title": "Convert a raised error to Result",
+      "hint": "Wrap successful division with `Ok(checked_divide(a, b))`, then use `catch { error => Err(error) }` for a raised error.",
+      "kind": "test"
     }
   ]
 }
