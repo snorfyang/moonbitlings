@@ -17,15 +17,27 @@ progress tracking.
 
 Prerequisite: a MoonBit toolchain with `moon` on your `PATH`.
 
+From a source checkout:
+
 ```bash
-git clone <this repository>
-cd moonbitlings
 moon run cmd/moonbitlings --
 ```
 
 The command starts an interactive watch session. Edit the printed exercise
 file, save it, and moonbitlings will verify it automatically. Run
 `moon run cmd/moonbitlings -- --help` to see the available commands.
+
+To create a separate local workspace from this checkout:
+
+```bash
+python3 scripts/build_bundle.py dist/moonbitlings-local
+dist/moonbitlings-local/init.sh dist/my-exercises
+cd dist/my-exercises
+./moonbitlings
+```
+
+The bundle contains the native CLI, exercises, and reset templates. The
+initializer refuses to overwrite an existing workspace.
 
 ## Highlights
 

@@ -63,10 +63,15 @@ moon info
 git diff --check
 scripts/cli_blackbox.sh
 python3 scripts/check_curriculum.py
+python3 scripts/check_package.py
+python3 scripts/bundle_blackbox.py
 ```
 
 The curriculum check verifies that each reset template matches its starter,
 unfinished starters fail, and reference solutions pass in temporary copies.
+The package check rejects files outside the tracked public set. The bundle
+check builds a native CLI and exercises watch, verification, and reset from a
+fresh workspace.
 
 ## Publishing the documentation site
 

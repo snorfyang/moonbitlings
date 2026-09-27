@@ -6,15 +6,14 @@ MoonBit 生态的 Rustlings 式离线交互练习工具：一组渐进式练习 
 （list / verify / hint / run / reset / check-all / watch），复用官方 `moon`
 工具链做判定。
 
-对照基准：Rustlings（95 题 / 26 主题 / watch TUI / check-all CI / run / reset /
-hint / 自动打开编辑器 / 一条命令安装）。
+对照基准：Rustlings 的安装与初始化、watch、练习列表、hint、reset 和内容检查流程。
 
 ## 现状快照
 
-- 1 道入门引导、24 道主题练习和 1 道综合练习，`list`/`verify [id]`/
+- 1 道入门引导、27 道主题练习和 1 道综合练习，`list`/`verify [id]`/
   `hint [id]`/`run [id]`/`reset [id]`/`check-all`/`watch [id]` 七个命令可用，
-  进度状态带版本号；40 个主包测试 + 进程级黑盒脚本在本地通过，并由 GitHub Actions
-  持续验证。
+  进度状态带版本号；40 个主包测试、CLI 黑盒、29 题课程检查和本地 bundle 检查
+  在本地通过，并由 GitHub Actions 持续验证。
 - 判定器、解析层、状态层已分层；每题是独立 module，不影响主包 CI。
 - 裸命令进入交互式 watch；会话内可提示、重跑、前进、列题、全量检查和退出。
 
@@ -82,7 +81,7 @@ struct / enum+模式匹配 / 泛型 / trait / 高阶函数 / 循环。Option 已
 ### P2-2 新主题（按 MoonBit 特性优先级）
 1. strings 与字符串操作（已加入插值、Unicode 字符计数和 ASCII 数字替换）
 2. Map / Set（已加入哈希表查询、集合去重和词频统计）
-3. modules / packages / 可见性（pub / priv）
+3. modules / packages / 可见性（已加入导入别名、`pub fn` 和 `pub(all) struct`）
 4. iterators / 迭代器与组合子
 5. tests（练习里写测试、`inspect`/快照）
 6. async（用 moonbitlang/async 的入门练习）
@@ -99,13 +98,14 @@ struct / enum+模式匹配 / 泛型 / trait / 高阶函数 / 循环。Option 已
 
 ---
 
-## 阶段 3：配套与分发（对齐「一条命令装好」）
+## 阶段 3：配套与分发
 
 - SOLUTIONS.md 参考解（与 hint 分层，注明「先自己写再看」）。
-- 发布到 Mooncakes：`moon login` + `moon publish`，支持 `moon install` 安装
-  （需要 mooncakes.io 账号与发布权限）。
+- 本地 bundle 已可构建并初始化独立练习目录，CI 检查包内容和干净目录中的学习流程。
+- 确定公开下载与 CLI 安装渠道；`moon install` 是安装模块依赖，不能直接替代
+  Rustlings 的 CLI 安装命令。
 - README/官网完善：安装、使用、题目索引。
-- 验收：干净环境能 `moon install` 后直接 `moon run` 开始做题。
+- 验收：用户取得发布包后，能在新目录初始化练习、启动 watch 并保存进度。
 
 ---
 

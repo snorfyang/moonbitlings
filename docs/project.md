@@ -57,9 +57,13 @@ moon info
 git diff --check
 scripts/cli_blackbox.sh
 python3 scripts/check_curriculum.py
+python3 scripts/check_package.py
+python3 scripts/bundle_blackbox.py
 ```
 
 课程检查会核对重置模板与初始源码一致，并在临时副本中验证未完成题目失败、参考解通过。
+打包检查会拒绝未纳入公开版本控制的文件；bundle 黑盒检查会在全新目录中验证 watch、
+练习通过和源码重置。
 
 ## 发布文档站点
 

@@ -15,14 +15,25 @@ moonbitlings 提供原生 CLI、一组渐进式 MoonBit 小练习、基于官方
 
 前置条件：已经安装 MoonBit 工具链，并且可以在 `PATH` 中找到 `moon`。
 
+在源码仓库根目录运行：
+
 ```bash
-git clone <本仓库地址>
-cd moonbitlings
 moon run cmd/moonbitlings --
 ```
 
 这条命令会启动交互式 watch 会话。修改界面中显示的练习文件并保存，moonbitlings
 会自动验证。运行 `moon run cmd/moonbitlings -- --help` 可以查看全部命令。
+
+也可以从当前源码构建本地 bundle，在独立目录中练习：
+
+```bash
+python3 scripts/build_bundle.py dist/moonbitlings-local
+dist/moonbitlings-local/init.sh dist/my-exercises
+cd dist/my-exercises
+./moonbitlings
+```
+
+bundle 包含原生 CLI、练习和重置模板；初始化脚本不会覆盖已有目录。
 
 ## 主要特性
 

@@ -38,3 +38,9 @@ jobs:
 
       - name: Curriculum
         run: python3 scripts/check_curriculum.py
+
+      - name: Package contents
+        run: python3 scripts/check_package.py
+
+      - name: Local bundle
+        run: python3 scripts/bundle_blackbox.py
