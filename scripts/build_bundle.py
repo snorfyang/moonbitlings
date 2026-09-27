@@ -22,15 +22,19 @@ cd my-moonbitlings
 ./moonbitlings
 ```
 
-The initialized directory contains editable exercises, reset templates, and
-local progress. Keep it to preserve your work. `init.sh` refuses to overwrite
-an existing directory.
+The initialized directory contains editable exercises, topic guides, reset
+templates, and local progress. After an exercise passes, its reference answer
+is written to `solutions/<id>/main.mbt`. Keep the workspace to preserve your
+work. `init.sh` refuses to overwrite an existing directory.
 """
 
 
 def tracked_assets() -> list[Path]:
     result = subprocess.run(
-        ["git", "ls-files", "-z", "exercises", "templates/exercises"],
+        [
+            "git", "ls-files", "-z", "exercises", "templates/exercises",
+            "templates/solutions", "guides",
+        ],
         cwd=ROOT,
         capture_output=True,
         check=True,
@@ -53,6 +57,11 @@ def main() -> int:
     expected = {Path("exercises/manifest.json")}
     expected.update(Path("exercises") / exercise_id / "main.mbt" for exercise_id in ids)
     expected.update(Path("templates/exercises") / exercise_id / "main.mbt" for exercise_id in ids)
+    expected.update(
+        Path("templates/solutions") / exercise_id / "main.mbt"
+        for exercise_id in ids if exercise_id != "00_intro"
+    )
+    expected.add(Path("guides/README.md"))
     assets = []
     for path in tracked_assets():
         if path == Path("exercises/manifest.json"):
@@ -61,8 +70,16 @@ def main() -> int:
             assets.append(path)
         elif len(path.parts) >= 4 and path.parts[:2] == ("templates", "exercises") and path.parts[2] in ids:
             assets.append(path)
+        elif (
+            len(path.parts) >= 4
+            and path.parts[:2] == ("templates", "solutions")
+            and path.parts[2] in ids
+        ):
+            assets.append(path)
+        elif path.parts[0] == "guides":
+            assets.append(path)
     if not expected <= set(assets):
-        print("error: exercise sources or reset templates are not tracked", file=sys.stderr)
+        print("error: required learning assets are not tracked", file=sys.stderr)
         return 1
 
     build = subprocess.run(

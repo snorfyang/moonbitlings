@@ -31,6 +31,9 @@ verifier.mbt              工具链驱动和结果渲染
 state.mbt                 进度状态和列表渲染
 cmd/moonbitlings/         CLI 可执行程序
 exercises/                练习模块和 manifest.json
+guides/                  主题导读
+templates/solutions/      通过后复制的参考解模板
+solutions/                本地生成的参考解
 test_fixtures/            测试使用的通过和失败样例
 ```
 
@@ -42,7 +45,7 @@ moonbitlings 是对官方 [moonbit/MPI-exercise](https://github.com/moonbit/MPI-
 
 交互式 watch 的信息层级参考了
 [Rustlings](https://github.com/rust-lang/rustlings) 的公开 UX 惯例，包括进度条、当前
-文件和单键操作提示。实现与文案均为原创，未复制 Rustlings 源码或练习内容；Rustlings
+文件、单键操作提示、主题导读和通过后显示参考解路径。实现与文案均为原创，未复制 Rustlings 源码或练习内容；Rustlings
 采用 MIT 许可证。
 
 ## 开发

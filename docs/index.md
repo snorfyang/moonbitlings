@@ -15,6 +15,9 @@ moon run cmd/moonbitlings --
 每道练习位于 `exercises/<id>/`。watch 会话会显示当前源码路径；修改该文件并保存后，
 moonbitlings 会自动重新验证。练习通过后，按 `n` 进入下一道待完成练习。
 
+主题导读见 `guides/README.md`。练习通过后，参考解会写入
+`solutions/<id>/main.mbt`。
+
 ## 使用手册
 
 - [CLI 参考](cli-reference.md)：命令、参数和退出码。

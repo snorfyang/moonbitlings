@@ -18,6 +18,8 @@
 !/docs/**
 !/exercises/
 !/exercises/**
+!/guides/
+!/guides/**
 !/scripts/
 !/scripts/**
 !/templates/

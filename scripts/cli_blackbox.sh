@@ -148,7 +148,21 @@ TMP_DIR="$(mktemp -d)"
 cp exercises/01_hello/main.mbt "$TMP_DIR/main.mbt"
 cp exercises/01_hello/moon.pkg "$TMP_DIR/moon.pkg"
 cp exercises/manifest.json "$TMP_DIR/manifest.json"
-trap 'cp "$TMP_DIR/main.mbt" exercises/01_hello/main.mbt; cp "$TMP_DIR/moon.pkg" exercises/01_hello/moon.pkg; cp "$TMP_DIR/manifest.json" exercises/manifest.json; rm -rf "$TMP_DIR"; rm -f .moonbitlings-state.json' EXIT
+solution_existed=0
+if [[ -e solutions/01_hello/main.mbt ]]; then
+  solution_existed=1
+fi
+cleanup() {
+  cp "$TMP_DIR/main.mbt" exercises/01_hello/main.mbt
+  cp "$TMP_DIR/moon.pkg" exercises/01_hello/moon.pkg
+  cp "$TMP_DIR/manifest.json" exercises/manifest.json
+  rm -rf "$TMP_DIR"
+  rm -f .moonbitlings-state.json
+  if [[ "$solution_existed" -eq 0 ]]; then
+    python3 -c 'from pathlib import Path; p=Path("solutions/01_hello/main.mbt"); p.unlink(missing_ok=True); p.parent.rmdir(); p.parent.parent.rmdir()'
+  fi
+}
+trap cleanup EXIT
 
 set +e
 watch_out="$({

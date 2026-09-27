@@ -45,15 +45,36 @@ def main() -> int:
         watch = run([executable, "watch", "00_intro", "--no-editor"], workspace, "q\n")
         require(watch.returncode == 0 and "Current: 00_intro" in watch.stdout, "watch failed")
 
+        require((workspace / "guides/README.md").is_file(), "topic guide missing")
+        require(not (workspace / "solutions").exists(), "solutions visible before completion")
+        hint = run([executable, "hint", "01_hello"], workspace)
+        require("Guide: guides/README.md" in hint.stdout, "hint lacks guide path")
+        failed = run([executable, "verify", "01_hello"], workspace)
+        require(
+            failed.returncode == 1
+            and "Solution:" not in failed.stdout
+            and not (workspace / "solutions").exists(),
+            "unfinished exercise revealed an answer",
+        )
         starter = (workspace / "exercises/01_hello/main.mbt").read_bytes()
         shutil.copyfile(
-            ROOT / "test_fixtures/solutions/01_hello/main.mbt",
+            workspace / "templates/solutions/01_hello/main.mbt",
             workspace / "exercises/01_hello/main.mbt",
         )
         verified = run([executable, "verify", "01_hello"], workspace)
         require(
             verified.returncode == 0 and "01_hello passed" in verified.stdout,
             "verification failed",
+        )
+        require(
+            "Solution: solutions/01_hello/main.mbt" in verified.stdout
+            and (workspace / "solutions/01_hello/main.mbt").is_file(),
+            "reference solution was not revealed",
+        )
+        completed_hint = run([executable, "hint", "01_hello"], workspace)
+        require(
+            "Solution: solutions/01_hello/main.mbt" in completed_hint.stdout,
+            "completed hint lacks solution path",
         )
         reset = run(
             [executable, "watch", "01_hello", "--no-editor"],

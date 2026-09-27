@@ -34,6 +34,9 @@ verifier.mbt              toolchain driver and result rendering
 state.mbt                 progress state and list rendering
 cmd/moonbitlings/         CLI executable
 exercises/                exercise modules and manifest.json
+guides/                  short topic notes
+templates/solutions/      reference answers copied after passing
+solutions/                generated answers (local only)
 test_fixtures/            passing and failing fixtures used by tests
 ```
 
@@ -47,7 +50,8 @@ moonbitlings exercises are original.
 
 The information hierarchy of interactive watch mode is informed by public UX
 conventions from [Rustlings](https://github.com/rust-lang/rustlings), including
-its progress bar, current-file display, and single-key prompt. The
+its progress bar, current-file display, single-key prompt, topic notes,
+and post-completion answer path. The
 implementation and wording are original; no Rustlings source or exercise
 content is copied. Rustlings is MIT-licensed.
 

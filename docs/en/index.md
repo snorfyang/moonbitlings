@@ -17,6 +17,9 @@ Each exercise lives in `exercises/<id>/`. The watch session prints the current
 source path. Edit that file and save it; moonbitlings re-verifies the exercise
 automatically. Once it passes, press `n` to move to the next pending exercise.
 
+Topic notes are in `guides/README.md`. After an exercise
+passes, its reference answer appears in `solutions/<id>/main.mbt`.
+
 ## Manual
 
 - [CLI reference](cli-reference.md): commands, arguments, and exit codes.

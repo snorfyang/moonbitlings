@@ -31,3 +31,6 @@ moon run cmd/moonbitlings -- [COMMAND]
 - `2`：用法、输入、练习清单或状态文件错误。
 
 `reset` 只修改 `.moonbitlings-state.json`，不会覆盖练习源码。
+
+`hint` 也会提示主题导读的位置。验证通过后，参考解会写入
+`solutions/<id>/main.mbt` 并显示路径。`reset` 会保留已生成的参考解。

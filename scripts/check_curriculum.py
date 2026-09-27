@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EXERCISES = ROOT / "exercises"
 TEMPLATES = ROOT / "templates" / "exercises"
-SOLUTIONS = ROOT / "test_fixtures" / "solutions"
+SOLUTIONS = ROOT / "templates" / "solutions"
 INTRO = "00_intro"
 ID_PATTERN = re.compile(r"[0-9]{2}_[a-z0-9_]+\Z")
 

@@ -88,6 +88,7 @@ let watch_welcome =
   #|==================================================
   #|
   #|Edit the current file and save it to check your work.
+  #|Topic guides: guides/README.md
 
 ///|
 /// Parse the command line into a command.
@@ -320,7 +321,11 @@ fn run_list(
 }
 
 ///|
-fn run_hint(manifest : @lib.Manifest, state : @lib.State, id : String?) -> Int {
+async fn run_hint(
+  manifest : @lib.Manifest,
+  state : @lib.State,
+  id : String?,
+) -> Int {
   match select_exercise(manifest, state, id) {
     Err(message) => {
       emit("error: \{message}")
@@ -332,8 +337,33 @@ fn run_hint(manifest : @lib.Manifest, state : @lib.State, id : String?) -> Int {
     }
     Ok(Some(exercise)) => {
       emit(@lib.render_hint(exercise))
+      emit("Guide: guides/README.md")
+      if state.is_done(exercise.id) &&
+        @fs.exists("solutions/\{exercise.id}/main.mbt") {
+        emit("Solution: solutions/\{exercise.id}/main.mbt")
+      }
       0
     }
+  }
+}
+
+///|
+async fn reveal_solution(id : String) -> Unit {
+  if id == "00_intro" {
+    return
+  }
+  let target = "solutions/\{id}/main.mbt"
+  if @fs.exists(target) {
+    emit("Solution: \{target}")
+    return
+  }
+  try {
+    let source = @fs.read_file("templates/solutions/\{id}/main.mbt").text()
+    @fs.mkdir("solutions/\{id}", recursive=true)
+    @fs.write_file(target, source)
+    emit("Solution: \{target}")
+  } catch {
+    err => emit("warning: cannot reveal solution for \{id}: \{err}")
   }
 }
 
@@ -356,6 +386,7 @@ async fn run_verify(
       let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
       emit(@lib.render_verify_result(exercise, result))
       if @lib.passed(result) {
+        reveal_solution(exercise.id)
         match save_state(state_path, state.mark_done(exercise.id)) {
           Ok(_) => 0
           Err(message) => {
@@ -389,6 +420,7 @@ async fn run_exercise(
       let result = @lib.run_moon(@lib.Run, @lib.exercise_dir(exercise.id))
       emit(@lib.render_run_result(exercise, result))
       if @lib.passed(result) {
+        reveal_solution(exercise.id)
         match save_state(state_path, state.mark_done(exercise.id)) {
           Ok(_) => 0
           Err(message) => {
@@ -480,6 +512,7 @@ async fn run_check_all(manifest : @lib.Manifest, state : @lib.State) -> Int {
     let result = @lib.run_moon(exercise.kind, @lib.exercise_dir(exercise.id))
     emit(@lib.render_verify_result(exercise, result))
     if @lib.passed(result) {
+      reveal_solution(exercise.id)
       verified = verified.mark_done(exercise.id)
     }
   }
@@ -911,6 +944,9 @@ async fn verify_watch_exercise(
     }
   }
   emit(@lib.render_verify_result(exercise, result))
+  if did_pass {
+    reveal_solution(exercise.id)
+  }
   let status = if did_pass { "passed" } else { "failing" }
   emit(render_watch_header(manifest, state, index, status))
   emit(render_watch_prompt(did_pass))

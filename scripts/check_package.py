@@ -44,13 +44,15 @@ def main() -> int:
         return 1
 
     manifest = json.loads((ROOT / "exercises/manifest.json").read_text())
-    required = {"exercises/manifest.json"}
+    required = {"exercises/manifest.json", "guides/README.md"}
     for item in manifest["exercises"]:
         exercise_id = item["id"]
         required.add(f"exercises/{exercise_id}/main.mbt")
         required.add(f"templates/exercises/{exercise_id}/main.mbt")
+        if exercise_id != "00_intro":
+            required.add(f"templates/solutions/{exercise_id}/main.mbt")
     if not required <= listed:
-        print("package is missing exercise or reset files", file=sys.stderr)
+        print("package is missing learning assets", file=sys.stderr)
         return 1
     print(f"package contains {len(listed)} tracked public files")
     return 0

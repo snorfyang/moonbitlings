@@ -23,6 +23,7 @@ staging=$(mktemp -d "$parent/.moonbitlings-init.XXXXXX")
 trap 'rm -rf "$staging"' EXIT HUP INT TERM
 cp -R "$bundle/exercises" "$staging/exercises"
 cp -R "$bundle/templates" "$staging/templates"
+cp -R "$bundle/guides" "$staging/guides"
 cp "$bundle/moonbitlings" "$staging/moonbitlings"
 cp "$bundle/README.md" "$staging/README.md"
 mv "$staging" "$target"

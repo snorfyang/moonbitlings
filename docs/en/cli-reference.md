@@ -32,3 +32,7 @@ Exit codes:
 
 `reset` changes only `.moonbitlings-state.json`; it never overwrites exercise
 source files.
+
+`hint` also points to the topic guides. A passing verification writes a reference
+answer under `solutions/<id>/main.mbt` and prints its path. `reset` keeps any
+answer already revealed.

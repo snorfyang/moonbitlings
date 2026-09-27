@@ -36,14 +36,14 @@ cd dist/my-exercises
 ./moonbitlings
 ```
 
-The bundle contains the native CLI, exercises, and reset templates. The
-initializer refuses to overwrite an existing workspace.
+The bundle contains the native CLI, exercises, topic guides, and reset
+templates. The initializer refuses to overwrite an existing workspace.
 
 ## Highlights
 
 - single-key interactive watch and exercise-list navigation;
 - automatic re-verification when exercise sources change;
-- hints, explicit next-exercise control, and persisted progress;
+- topic guides, hints, reference answers after passing, and persisted progress;
 - VS Code and configurable editor integration;
 - deterministic, fully offline operation.
 
