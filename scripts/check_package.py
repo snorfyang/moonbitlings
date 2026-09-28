@@ -8,6 +8,25 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PUBLIC_MARKDOWN_NAMES = {"readme.md", "readme.zh-cn.md", "roadmap.md"}
+PUBLIC_MARKDOWN_ROOTS = {"docs", "guides"}
+CREDENTIAL_SUFFIXES = {".env", ".key", ".pem"}
+
+
+def is_private_working_file(path: Path) -> bool:
+    """Local notes and credentials must never reach the public package.
+
+    Public prose is limited to the root README/ROADMAP and the docs/ and
+    guides/ trees, so any other markdown file is a local working document.
+    """
+    if path.name.lower().startswith(".env") or path.suffix.lower() in CREDENTIAL_SUFFIXES:
+        return True
+    if path.suffix.lower() != ".md":
+        return False
+    return (
+        path.name.lower() not in PUBLIC_MARKDOWN_NAMES
+        and path.parts[0] not in PUBLIC_MARKDOWN_ROOTS
+    )
 
 
 def main() -> int:
@@ -35,12 +54,8 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    if any(
-        Path(path).suffix.lower() in {".local", ".private"}
-        or "prompt" in Path(path).name.lower()
-        for path in listed
-    ):
-        print("package includes a private working file", file=sys.stderr)
+    if any(is_private_working_file(Path(path)) for path in listed):
+        print("package includes a local working file", file=sys.stderr)
         return 1
 
     manifest = json.loads((ROOT / "exercises/manifest.json").read_text())
