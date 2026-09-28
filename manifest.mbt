@@ -7,6 +7,14 @@ pub(all) enum ExerciseKind {
 } derive(Eq, @debug.Debug)
 
 ///|
+/// The `Eq` impl promoted as regular methods for `ExerciseKind`.
+pub extend ExerciseKind with Eq::{not_equal, equal}
+
+///|
+/// The `Debug` impl promoted as regular methods for `ExerciseKind`.
+pub extend ExerciseKind with @debug.Debug::{to_repr}
+
+///|
 /// A single exercise as described by `exercises/manifest.json`.
 pub(all) struct Exercise {
   id : String

@@ -1,13 +1,13 @@
 ///|
 test "state starts empty" {
-  let state = State::empty()
+  let state = @moonbitlings.State::empty()
   assert_false(state.is_done("01_hello"))
   assert_eq(state.current, None)
 }
 
 ///|
 test "mark_done records an id and is idempotent" {
-  let state = State::empty().mark_done("01_hello")
+  let state = @moonbitlings.State::empty().mark_done("01_hello")
   assert_true(state.is_done("01_hello"))
   assert_false(state.is_done("02_add"))
   let again = state.mark_done("01_hello")
@@ -16,7 +16,9 @@ test "mark_done records an id and is idempotent" {
 
 ///|
 test "mark_pending removes only the requested id" {
-  let state = State::empty().mark_done("01_hello").mark_done("02_add")
+  let state = @moonbitlings.State::empty()
+    .mark_done("01_hello")
+    .mark_done("02_add")
   let state = state.mark_pending("01_hello")
   assert_false(state.is_done("01_hello"))
   assert_true(state.is_done("02_add"))
@@ -27,7 +29,7 @@ test "mark_pending removes only the requested id" {
 test "parse_state reads done ids" {
   let text =
     #|{"version":1,"done":["01_hello","02_add"]}
-  let state = match parse_state(text) {
+  let state = match @moonbitlings.parse_state(text) {
     Ok(state) => state
     Err(message) => fail(message)
   }
@@ -41,7 +43,7 @@ test "parse_state reads done ids" {
 test "parse_state reads version 2 current exercise" {
   let text =
     #|{"version":2,"done":["01_hello"],"current":"02_add"}
-  let state = match parse_state(text) {
+  let state = match @moonbitlings.parse_state(text) {
     Ok(state) => state
     Err(message) => fail(message)
   }
@@ -51,31 +53,40 @@ test "parse_state reads version 2 current exercise" {
 
 ///|
 test "parse_state rejects malformed shapes" {
-  assert_true(parse_state("not json") is Err(_))
-  assert_true(parse_state("{\"version\":1,\"done\":\"nope\"}") is Err(_))
-  assert_true(parse_state("{\"version\":1,\"done\":[1,2]}") is Err(_))
+  assert_true(@moonbitlings.parse_state("not json") is Err(_))
   assert_true(
-    parse_state("{\"version\":2,\"done\":[],\"current\":3}") is Err(_),
+    @moonbitlings.parse_state("{\"version\":1,\"done\":\"nope\"}") is Err(_),
   )
-  assert_true(parse_state("{}") is Err(_))
+  assert_true(
+    @moonbitlings.parse_state("{\"version\":1,\"done\":[1,2]}") is Err(_),
+  )
+  assert_true(
+    @moonbitlings.parse_state("{\"version\":2,\"done\":[],\"current\":3}")
+    is Err(_),
+  )
+  assert_true(@moonbitlings.parse_state("{}") is Err(_))
 }
 
 ///|
 test "parse_state rejects a missing or unsupported version" {
-  assert_true(parse_state("{\"done\":[]}") is Err(_))
-  assert_true(parse_state("{\"version\":2,\"done\":[]}") is Err(_))
-  assert_true(parse_state("{\"version\":\"1\",\"done\":[]}") is Err(_))
+  assert_true(@moonbitlings.parse_state("{\"done\":[]}") is Err(_))
+  assert_true(
+    @moonbitlings.parse_state("{\"version\":2,\"done\":[]}") is Err(_),
+  )
+  assert_true(
+    @moonbitlings.parse_state("{\"version\":\"1\",\"done\":[]}") is Err(_),
+  )
 }
 
 ///|
 test "state round-trips through JSON" {
-  let state = State::empty()
+  let state = @moonbitlings.State::empty()
     .mark_done("02_add")
     .mark_done("01_hello")
     .with_current("02_add")
   let text = state.to_json()
   assert_true(text.contains("\"version\":2"))
-  let parsed = match parse_state(text) {
+  let parsed = match @moonbitlings.parse_state(text) {
     Ok(parsed) => parsed
     Err(message) => fail(message)
   }
@@ -87,19 +98,19 @@ test "state round-trips through JSON" {
 ///|
 test "current_index skips done exercises" {
   let manifest = manifest_of(["a", "b", "c"])
-  let state = State::empty()
-  assert_eq(current_index(manifest, state), Some(0))
+  let state = @moonbitlings.State::empty()
+  assert_eq(@moonbitlings.current_index(manifest, state), Some(0))
   let state = state.mark_done("a")
-  assert_eq(current_index(manifest, state), Some(1))
+  assert_eq(@moonbitlings.current_index(manifest, state), Some(1))
   let state = state.mark_done("b").mark_done("c")
-  assert_eq(current_index(manifest, state), None)
+  assert_eq(@moonbitlings.current_index(manifest, state), None)
 }
 
 ///|
 test "render_list marks done exercises" {
   let manifest = manifest_of(["a", "b"])
-  let state = State::empty().mark_done("a")
-  let rendered = render_list(manifest, state)
+  let state = @moonbitlings.State::empty().mark_done("a")
+  let rendered = @moonbitlings.render_list(manifest, state)
   assert_true(rendered.contains("[done] a"))
   assert_true(rendered.contains("[pending] b"))
 }
@@ -107,24 +118,24 @@ test "render_list marks done exercises" {
 ///|
 test "render_list filters by status" {
   let manifest = manifest_of(["a", "b"])
-  let state = State::empty().mark_done("a")
-  let pending = render_list_filtered(manifest, state, Pending)
+  let state = @moonbitlings.State::empty().mark_done("a")
+  let pending = @moonbitlings.render_list_filtered(manifest, state, Pending)
   assert_false(pending.contains(" a"))
   assert_true(pending.contains("[pending] b"))
-  let done = render_list_filtered(manifest, state, Done)
+  let done = @moonbitlings.render_list_filtered(manifest, state, Done)
   assert_true(done.contains("[done] a"))
   assert_false(done.contains(" b"))
 }
 
 ///|
 test "render_hint names the exercise" {
-  let exercise : Exercise = {
+  let exercise : @moonbitlings.Exercise = {
     id: "a",
     title: "A",
     hint: "do the thing",
     kind: Check,
   }
-  let rendered = render_hint(exercise)
+  let rendered = @moonbitlings.render_hint(exercise)
   assert_true(rendered.contains("a"))
   assert_true(rendered.contains("do the thing"))
 }
@@ -132,9 +143,9 @@ test "render_hint names the exercise" {
 ///|
 test "render_check_all_summary reports the first pending exercise" {
   let manifest = manifest_of(["a", "b", "c"])
-  let state = State::empty().mark_done("a")
+  let state = @moonbitlings.State::empty().mark_done("a")
   assert_eq(
-    render_check_all_summary(manifest, state),
+    @moonbitlings.render_check_all_summary(manifest, state),
     "1/3 done\n2/3 pending; first pending: b",
   )
 }
@@ -142,13 +153,16 @@ test "render_check_all_summary reports the first pending exercise" {
 ///|
 test "render_check_all_summary reports completion" {
   let manifest = manifest_of(["a", "b"])
-  let state = State::empty().mark_done("a").mark_done("b")
-  assert_eq(render_check_all_summary(manifest, state), "2/2 done\n0/2 pending")
+  let state = @moonbitlings.State::empty().mark_done("a").mark_done("b")
+  assert_eq(
+    @moonbitlings.render_check_all_summary(manifest, state),
+    "2/2 done\n0/2 pending",
+  )
 }
 
 ///|
-fn manifest_of(ids : Array[String]) -> Manifest {
-  let exercises : Array[Exercise] = []
+fn manifest_of(ids : Array[String]) -> @moonbitlings.Manifest {
+  let exercises : Array[@moonbitlings.Exercise] = []
   for id in ids {
     exercises.push({ id, title: id, hint: "hint", kind: Check, })
   }

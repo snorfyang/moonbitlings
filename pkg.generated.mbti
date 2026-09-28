@@ -47,12 +47,18 @@ pub(all) enum ExerciseKind {
   Test
   Run
 } derive(Eq, @debug.Debug)
+pub fn ExerciseKind::equal(Self, Self) -> Bool
+pub fn ExerciseKind::not_equal(Self, Self) -> Bool
+pub fn ExerciseKind::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ListFilter {
   All
   Pending
   Done
 } derive(Eq, @debug.Debug)
+pub fn ListFilter::equal(Self, Self) -> Bool
+pub fn ListFilter::not_equal(Self, Self) -> Bool
+pub fn ListFilter::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Manifest {
   exercises : Array[Exercise]

@@ -1,26 +1,28 @@
 ///|
 test "kind_command maps kinds to moon subcommands" {
-  assert_eq(kind_command(Check), "check")
-  assert_eq(kind_command(Test), "test")
-  assert_eq(kind_command(Run), "run")
+  assert_eq(@moonbitlings.kind_command(Check), "check")
+  assert_eq(@moonbitlings.kind_command(Test), "test")
+  assert_eq(@moonbitlings.kind_command(Run), "run")
 }
 
 ///|
 test "passed is true only for exit code zero" {
-  assert_true(passed({ exit_code: 0, stdout: "", stderr: "", }))
-  assert_false(passed({ exit_code: 1, stdout: "", stderr: "", }))
-  assert_false(passed({ exit_code: 255, stdout: "", stderr: "", }))
+  assert_true(@moonbitlings.passed({ exit_code: 0, stdout: "", stderr: "", }))
+  assert_false(@moonbitlings.passed({ exit_code: 1, stdout: "", stderr: "", }))
+  assert_false(
+    @moonbitlings.passed({ exit_code: 255, stdout: "", stderr: "", }),
+  )
 }
 
 ///|
 test "render_verify_result reports success" {
-  let exercise : Exercise = {
+  let exercise : @moonbitlings.Exercise = {
     id: "01_hello",
     title: "Hello",
     hint: "h",
     kind: Check,
   }
-  let rendered = render_verify_result(exercise, {
+  let rendered = @moonbitlings.render_verify_result(exercise, {
     exit_code: 0,
     stdout: "",
     stderr: "",
@@ -31,13 +33,13 @@ test "render_verify_result reports success" {
 
 ///|
 test "render_verify_result shows diagnostics on failure" {
-  let exercise : Exercise = {
+  let exercise : @moonbitlings.Exercise = {
     id: "01_hello",
     title: "Hello",
     hint: "h",
     kind: Check,
   }
-  let rendered = render_verify_result(exercise, {
+  let rendered = @moonbitlings.render_verify_result(exercise, {
     exit_code: 255,
     stdout: "",
     stderr: "boom",
@@ -48,13 +50,13 @@ test "render_verify_result shows diagnostics on failure" {
 
 ///|
 test "render_run_result preserves program output" {
-  let exercise : Exercise = {
+  let exercise : @moonbitlings.Exercise = {
     id: "03_main",
     title: "Main",
     hint: "h",
     kind: Run,
   }
-  let rendered = render_run_result(exercise, {
+  let rendered = @moonbitlings.render_run_result(exercise, {
     exit_code: 0,
     stdout: "hello\n",
     stderr: "",
@@ -64,13 +66,13 @@ test "render_run_result preserves program output" {
 
 ///|
 test "render_run_result reports a failed run" {
-  let exercise : Exercise = {
+  let exercise : @moonbitlings.Exercise = {
     id: "03_main",
     title: "Main",
     hint: "h",
     kind: Run,
   }
-  let rendered = render_run_result(exercise, {
+  let rendered = @moonbitlings.render_run_result(exercise, {
     exit_code: 2,
     stdout: "",
     stderr: "boom\n",
@@ -82,8 +84,8 @@ test "render_run_result reports a failed run" {
 
 ///|
 async test "run_moon passes on a clean fixture" {
-  let result = run_moon(Test, "test_fixtures/pass")
-  if !passed(result) {
+  let result = @moonbitlings.run_moon(Test, "test_fixtures/pass")
+  if !@moonbitlings.passed(result) {
     fail(
       "expected pass, got exit \{result.exit_code}\n\{result.stdout}\{result.stderr}",
     )
@@ -92,16 +94,16 @@ async test "run_moon passes on a clean fixture" {
 
 ///|
 async test "run_moon fails on a broken fixture" {
-  let result = run_moon(Test, "test_fixtures/fail")
-  if passed(result) {
+  let result = @moonbitlings.run_moon(Test, "test_fixtures/fail")
+  if @moonbitlings.passed(result) {
     fail("expected failure, but the fixture passed")
   }
 }
 
 ///|
 async test "run_moon runs a main fixture" {
-  let result = run_moon(Run, "test_fixtures/run")
-  if !passed(result) {
+  let result = @moonbitlings.run_moon(Run, "test_fixtures/run")
+  if !@moonbitlings.passed(result) {
     fail(
       "expected run to pass, got exit \{result.exit_code}\n\{result.stdout}\{result.stderr}",
     )

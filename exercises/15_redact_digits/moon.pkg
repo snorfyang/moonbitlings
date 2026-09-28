@@ -1,1 +1,4 @@
 // Exercise 15_redact_digits package.
+
+// Keep `main_test.mbt` readable: it calls the exercise API unqualified.
+warnings = "-test_unqualified_package"

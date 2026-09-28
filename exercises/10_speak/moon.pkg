@@ -1,1 +1,4 @@
 // Exercise 10_speak package.
+
+// Keep `main_test.mbt` readable: it calls the exercise API unqualified.
+warnings = "-test_unqualified_package"

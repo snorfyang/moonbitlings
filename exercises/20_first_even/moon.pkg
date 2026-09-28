@@ -1,1 +1,4 @@
 // Exercise 20_first_even package.
+
+// Keep `main_test.mbt` readable: it calls the exercise API unqualified.
+warnings = "-test_unqualified_package"

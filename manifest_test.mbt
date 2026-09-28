@@ -1,5 +1,9 @@
 ///|
-fn exercise(id : String, title : String, kind : ExerciseKind) -> Exercise {
+fn exercise(
+  id : String,
+  title : String,
+  kind : @moonbitlings.ExerciseKind,
+) -> @moonbitlings.Exercise {
   { id, title, hint: "hint for \{id}", kind, }
 }
 
@@ -7,7 +11,7 @@ fn exercise(id : String, title : String, kind : ExerciseKind) -> Exercise {
 test "parse a valid manifest" {
   let text =
     #|{"exercises":[{"id":"01_hello","title":"Hello","hint":"h","kind":"check"},{"id":"02_add","title":"Add","hint":"h2","kind":"test"},{"id":"03_main","title":"Main","hint":"h3","kind":"run"}]}
-  let manifest = match parse_manifest(text) {
+  let manifest = match @moonbitlings.parse_manifest(text) {
     Ok(manifest) => manifest
     Err(message) => fail(message)
   }
@@ -21,35 +25,35 @@ test "parse a valid manifest" {
 
 ///|
 test "parse rejects invalid JSON" {
-  assert_true(parse_manifest("not json") is Err(_))
+  assert_true(@moonbitlings.parse_manifest("not json") is Err(_))
 }
 
 ///|
 test "parse rejects a non-object root" {
-  assert_true(parse_manifest("[1,2]") is Err(_))
+  assert_true(@moonbitlings.parse_manifest("[1,2]") is Err(_))
 }
 
 ///|
 test "parse rejects a missing kind" {
   let text =
     #|{"exercises":[{"id":"a","title":"A","hint":"h"}]}
-  assert_true(parse_manifest(text) is Err(_))
+  assert_true(@moonbitlings.parse_manifest(text) is Err(_))
 }
 
 ///|
 test "parse rejects an unknown kind" {
   let text =
     #|{"exercises":[{"id":"a","title":"A","hint":"h","kind":"bogus"}]}
-  assert_true(parse_manifest(text) is Err(_))
+  assert_true(@moonbitlings.parse_manifest(text) is Err(_))
 }
 
 ///|
 test "find and index_of" {
-  let exercises : Array[Exercise] = [
+  let exercises : Array[@moonbitlings.Exercise] = [
     exercise("a", "A", Check),
     exercise("b", "B", Test),
   ]
-  let manifest : Manifest = { exercises, }
+  let manifest : @moonbitlings.Manifest = { exercises, }
   match manifest.find("b") {
     Some(found) => assert_eq(found.id, "b")
     None => fail("expected to find exercise b")
@@ -60,5 +64,5 @@ test "find and index_of" {
 
 ///|
 test "exercise_dir uses the id" {
-  assert_eq(exercise_dir("01_hello"), "exercises/01_hello")
+  assert_eq(@moonbitlings.exercise_dir("01_hello"), "exercises/01_hello")
 }

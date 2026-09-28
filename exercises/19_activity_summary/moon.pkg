@@ -2,3 +2,6 @@
 import {
   "moonbitlang/core/hashset",
 }
+
+// Keep `main_test.mbt` readable: it calls the exercise API unqualified.
+warnings = "-test_unqualified_package"

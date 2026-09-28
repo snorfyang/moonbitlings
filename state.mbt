@@ -14,6 +14,14 @@ pub(all) enum ListFilter {
 } derive(Eq, @debug.Debug)
 
 ///|
+/// The `Eq` impl promoted as regular methods for `ListFilter`.
+pub extend ListFilter with Eq::{not_equal, equal}
+
+///|
+/// The `Debug` impl promoted as regular methods for `ListFilter`.
+pub extend ListFilter with @debug.Debug::{to_repr}
+
+///|
 pub fn State::empty() -> State {
   { done: [], current: None, }
 }
