@@ -40,6 +40,31 @@ solutions/                generated answers (local only)
 test_fixtures/            passing and failing fixtures used by tests
 ```
 
+## Design decisions
+
+- **The toolchain stays behind a narrow interface.** The CLI only needs "run this
+  `moon` subcommand in this directory and report the exit code", so tests drive
+  real fixtures and the tool contains no compiler knowledge it would have to
+  maintain.
+- **Only exit code `0` is a pass.** Observed codes differ by command (`moon check`
+  can fail with 255, `moon test` with 2), so the rule is deliberately coarse:
+  diagnostics are shown, never parsed to manufacture a verdict. Ambiguous output
+  is reported as failing or unknown.
+- **Metadata is versioned JSON, not a DSL.** Contributors edit plain data, and the
+  manifest schema stays small enough to review by eye.
+- **Every exercise is its own module.** A deliberately broken starter cannot break
+  the main package or CI, and verifying one exercise never builds the others.
+- **Exercise ids and order are stable.** Renaming or reordering would invalidate
+  saved learner progress, so new exercises are appended.
+- **Progress lives in one local, versioned file**, separate from exercise sources;
+  deleting it only resets progress and the current selection.
+- **Non-interactive output is deterministic and ANSI-free.** That is why colour is
+  intentionally not implemented; interactivity is detected from the terminal, and
+  scripts always get byte-stable output.
+- **Reference answers are revealed after passing** rather than shipped in the
+  starter, so the learner attempts the exercise first and can still compare
+  approaches afterwards.
+
 ## Related project
 
 moonbitlings complements the official
@@ -86,4 +111,6 @@ GitHub Actions. The site root is Chinese by default; English documentation is
 available under `/en/`.
 
 To release, run these checks, bump `version` in `moon.mod`, then create and push
-the release tag to the configured remote.
+the release tag to the configured remote. Publishing a GitHub Release triggers
+`.github/workflows/release.yml`, which builds native Linux and macOS bundles with
+`scripts/build_bundle.py` and attaches them to the release.
