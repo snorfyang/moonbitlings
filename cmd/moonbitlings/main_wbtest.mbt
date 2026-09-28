@@ -182,3 +182,25 @@ test "watch list marks selection and resumes persisted current" {
   let stale = state.with_current("missing")
   assert_eq(initial_watch_index(manifest, stale), Some(1))
 }
+
+///|
+test "run only applies to executable exercises" {
+  let checked : @lib.Exercise = {
+    id: "02_add",
+    title: "Add",
+    hint: "h",
+    kind: @lib.Test,
+  }
+  let executable : @lib.Exercise = {
+    id: "29_run_main",
+    title: "Main",
+    hint: "h",
+    kind: @lib.Run,
+  }
+  assert_false(is_runnable(checked))
+  assert_true(is_runnable(executable))
+  let rendered = render_run_not_applicable(checked)
+  assert_true(rendered.contains("02_add"))
+  assert_true(rendered.contains("fn main"))
+  assert_true(rendered.contains("verify"))
+}

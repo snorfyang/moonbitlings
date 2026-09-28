@@ -126,8 +126,8 @@ expect "verify an unexported function exercise" 1 -- verify 27_public_function
 expect "verify an unconstructible struct exercise" 1 -- verify 28_public_struct
 expect "verify without an id completes the introduction" 0 --contains "00_intro passed" -- verify
 expect "hint without an id shows the next exercise" 0 --contains "Hint for 01_hello" -- hint
-expect "run rejects a non-main exercise" 1 --contains "failed to run" -- run 01_hello
-expect "run without an id selects the next exercise" 1 --contains "failed to run" -- run
+expect "run rejects a non-main exercise" 2 --contains "has no executable program" -- run 01_hello
+expect "run without an id selects the next exercise" 2 --contains "has no executable program" -- run
 expect "reset without an id selects the next exercise" 0 --contains "already pending" -- reset
 expect "check-all reports pending exercises" 1 --contains "pending; first pending: 01_hello" -- check-all
 expect "verify an unknown exercise" 2 --contains "unknown exercise" -- verify nope

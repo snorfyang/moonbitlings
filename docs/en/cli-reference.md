@@ -33,6 +33,10 @@ Exit codes:
 `reset` changes only `.moonbitlings-state.json`; it never overwrites exercise
 source files.
 
+`run` applies only to executable exercises that define `fn main`. Running it on
+any other exercise reports that clearly and exits `2`, instead of surfacing the
+toolchain's raw error.
+
 `hint` also points to the topic guides. A passing verification writes a reference
 answer under `solutions/<id>/main.mbt` and prints its path. `reset` keeps any
 answer already revealed.

@@ -32,5 +32,8 @@ moon run cmd/moonbitlings -- [COMMAND]
 
 `reset` 只修改 `.moonbitlings-state.json`，不会覆盖练习源码。
 
+`run` 只适用于定义了 `fn main` 的可执行练习。对其它练习运行时，它会明确说明原因并以
+`2` 退出，而不是把工具链的原始错误直接暴露给学习者。
+
 `hint` 也会提示主题导读的位置。验证通过后，参考解会写入
 `solutions/<id>/main.mbt` 并显示路径。`reset` 会保留已生成的参考解。

@@ -402,6 +402,21 @@ async fn run_verify(
 }
 
 ///|
+/// Whether an exercise defines a runnable `fn main` program.
+fn is_runnable(exercise : @lib.Exercise) -> Bool {
+  match exercise.kind {
+    @lib.Run => true
+    _ => false
+  }
+}
+
+///|
+/// Explain why `run` does not apply to a non-executable exercise.
+fn render_run_not_applicable(exercise : @lib.Exercise) -> String {
+  "error: exercise \{exercise.id} has no executable program; `run` applies to exercises that define `fn main`. Use `verify` instead."
+}
+
+///|
 async fn run_exercise(
   manifest : @lib.Manifest,
   state : @lib.State,
@@ -416,22 +431,26 @@ async fn run_exercise(
       emit("all exercises are already done")
       0
     }
-    Ok(Some(exercise)) => {
-      let result = @lib.run_moon(@lib.Run, @lib.exercise_dir(exercise.id))
-      emit(@lib.render_run_result(exercise, result))
-      if @lib.passed(result) {
-        reveal_solution(exercise.id)
-        match save_state(state_path, state.mark_done(exercise.id)) {
-          Ok(_) => 0
-          Err(message) => {
-            emit("warning: \{message}")
-            0
-          }
-        }
+    Ok(Some(exercise)) =>
+      if !is_runnable(exercise) {
+        emit(render_run_not_applicable(exercise))
+        2
       } else {
-        1
+        let result = @lib.run_moon(@lib.Run, @lib.exercise_dir(exercise.id))
+        emit(@lib.render_run_result(exercise, result))
+        if @lib.passed(result) {
+          reveal_solution(exercise.id)
+          match save_state(state_path, state.mark_done(exercise.id)) {
+            Ok(_) => 0
+            Err(message) => {
+              emit("warning: \{message}")
+              0
+            }
+          }
+        } else {
+          1
+        }
       }
-    }
   }
 }
 
