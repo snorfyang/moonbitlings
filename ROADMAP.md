@@ -12,7 +12,7 @@ MoonBit 生态的 Rustlings 式离线交互练习工具：一组渐进式练习 
 
 - 1 道入门引导、27 道主题练习和 1 道综合练习，`list`/`verify [id]`/
   `hint [id]`/`run [id]`/`reset [id]`/`check-all`/`watch [id]` 七个命令可用，
-  进度状态带版本号；40 个主包测试、CLI 黑盒、29 题课程检查和本地 bundle 检查
+  进度状态带版本号；41 个主包测试、CLI 黑盒、29 题课程检查和本地 bundle 检查
   在本地通过，并由 GitHub Actions 持续验证。
 - 判定器、解析层、状态层已分层；每题是独立 module，不影响主包 CI。
 - 裸命令进入交互式 watch；会话内可提示、重跑、前进、列题、全量检查和退出。
