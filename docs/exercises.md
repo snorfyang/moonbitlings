@@ -14,39 +14,46 @@
 [学习路径](https://github.com/snorfyang/moonbitlings/blob/main/guides/README.md)。
 
 <!-- BEGIN GENERATED EXERCISE TABLE -->
-共 29 道练习。
 
-| 练习 | 标题 | 类型 | 主题 |
-| --- | --- | --- | --- |
-| `00_intro` | Welcome: learn the workflow | check | [入门](https://github.com/snorfyang/moonbitlings/blob/main/guides/getting-started.md) |
-| `01_hello` | Hello: fix the type error | check | [表达式与函数](https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md) |
-| `02_add` | Add: make the test pass | test | [表达式与函数](https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md) |
-| `03_sum_to` | Sum to n: a loop | test | [表达式与函数](https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md) |
-| `04_factorial` | Factorial: recursion | test | [表达式与函数](https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md) |
-| `05_rect_area` | Rectangle area: structs | test | [struct、枚举与模式匹配](https://github.com/snorfyang/moonbitlings/blob/main/guides/data-types.md) |
-| `06_shape_area` | Shape area: enums and match | test | [struct、枚举与模式匹配](https://github.com/snorfyang/moonbitlings/blob/main/guides/data-types.md) |
-| `07_describe_option` | Describe an option: Option and match | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `08_safe_divide` | Safe divide: error handling | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `09_maximum` | Maximum: generics | test | [泛型与 trait](https://github.com/snorfyang/moonbitlings/blob/main/guides/generics-and-traits.md) |
-| `10_speak` | Speak: traits | test | [泛型与 trait](https://github.com/snorfyang/moonbitlings/blob/main/guides/generics-and-traits.md) |
-| `11_map` | Map: higher-order functions | test | [数组与回调](https://github.com/snorfyang/moonbitlings/blob/main/guides/arrays.md) |
-| `12_count_even` | Count evens: an array loop | test | [数组与回调](https://github.com/snorfyang/moonbitlings/blob/main/guides/arrays.md) |
-| `13_greeting` | Greeting: string interpolation | test | [字符串与字符](https://github.com/snorfyang/moonbitlings/blob/main/guides/strings.md) |
-| `14_character_count` | Code point count: Unicode iteration | test | [字符串与字符](https://github.com/snorfyang/moonbitlings/blob/main/guides/strings.md) |
-| `15_redact_digits` | Redact digits: text processing | test | [字符串与字符](https://github.com/snorfyang/moonbitlings/blob/main/guides/strings.md) |
-| `16_score_lookup` | Score lookup: hash maps | test | [Map 与 Set](https://github.com/snorfyang/moonbitlings/blob/main/guides/collections.md) |
-| `17_unique_count` | Unique count: hash sets | test | [Map 与 Set](https://github.com/snorfyang/moonbitlings/blob/main/guides/collections.md) |
-| `18_word_frequencies` | Word frequencies: update a hash map | test | [Map 与 Set](https://github.com/snorfyang/moonbitlings/blob/main/guides/collections.md) |
-| `19_activity_summary` | Activity summary: review | test | [综合复习](https://github.com/snorfyang/moonbitlings/blob/main/guides/review.md) |
-| `20_first_even` | First even: finding an optional value | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `21_double_option` | Double an option: map | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `22_add_options` | Add options: bind and map | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `23_raise_negative` | Raise a typed error | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `24_catch_division` | Catch an error and use a fallback | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `25_error_to_result` | Convert a raised error to Result | test | [缺失值与错误处理](https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md) |
-| `26_import_alias` | Import a helper package | test | [包与可见性](https://github.com/snorfyang/moonbitlings/blob/main/guides/packages.md) |
-| `27_public_function` | Export a function with pub | test | [包与可见性](https://github.com/snorfyang/moonbitlings/blob/main/guides/packages.md) |
-| `28_public_struct` | Make a struct constructible across packages | test | [包与可见性](https://github.com/snorfyang/moonbitlings/blob/main/guides/packages.md) |
+<p>共 29 道练习。</p>
+
+<table>
+<thead>
+<tr><th>练习</th><th>标题</th><th>类型</th><th>主题</th></tr>
+</thead>
+<tbody>
+<tr><td><code>00_intro</code></td><td>Welcome: learn the workflow</td><td><code>check</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/getting-started.md">入门</a></td></tr>
+<tr><td><code>01_hello</code></td><td>Hello: fix the type error</td><td><code>check</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md">表达式与函数</a></td></tr>
+<tr><td><code>02_add</code></td><td>Add: make the test pass</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md">表达式与函数</a></td></tr>
+<tr><td><code>03_sum_to</code></td><td>Sum to n: a loop</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md">表达式与函数</a></td></tr>
+<tr><td><code>04_factorial</code></td><td>Factorial: recursion</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/functions.md">表达式与函数</a></td></tr>
+<tr><td><code>05_rect_area</code></td><td>Rectangle area: structs</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/data-types.md">struct、枚举与模式匹配</a></td></tr>
+<tr><td><code>06_shape_area</code></td><td>Shape area: enums and match</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/data-types.md">struct、枚举与模式匹配</a></td></tr>
+<tr><td><code>07_describe_option</code></td><td>Describe an option: Option and match</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>08_safe_divide</code></td><td>Safe divide: error handling</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>09_maximum</code></td><td>Maximum: generics</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/generics-and-traits.md">泛型与 trait</a></td></tr>
+<tr><td><code>10_speak</code></td><td>Speak: traits</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/generics-and-traits.md">泛型与 trait</a></td></tr>
+<tr><td><code>11_map</code></td><td>Map: higher-order functions</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/arrays.md">数组与回调</a></td></tr>
+<tr><td><code>12_count_even</code></td><td>Count evens: an array loop</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/arrays.md">数组与回调</a></td></tr>
+<tr><td><code>13_greeting</code></td><td>Greeting: string interpolation</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/strings.md">字符串与字符</a></td></tr>
+<tr><td><code>14_character_count</code></td><td>Code point count: Unicode iteration</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/strings.md">字符串与字符</a></td></tr>
+<tr><td><code>15_redact_digits</code></td><td>Redact digits: text processing</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/strings.md">字符串与字符</a></td></tr>
+<tr><td><code>16_score_lookup</code></td><td>Score lookup: hash maps</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/collections.md">Map 与 Set</a></td></tr>
+<tr><td><code>17_unique_count</code></td><td>Unique count: hash sets</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/collections.md">Map 与 Set</a></td></tr>
+<tr><td><code>18_word_frequencies</code></td><td>Word frequencies: update a hash map</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/collections.md">Map 与 Set</a></td></tr>
+<tr><td><code>19_activity_summary</code></td><td>Activity summary: review</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/review.md">综合复习</a></td></tr>
+<tr><td><code>20_first_even</code></td><td>First even: finding an optional value</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>21_double_option</code></td><td>Double an option: map</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>22_add_options</code></td><td>Add options: bind and map</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>23_raise_negative</code></td><td>Raise a typed error</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>24_catch_division</code></td><td>Catch an error and use a fallback</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>25_error_to_result</code></td><td>Convert a raised error to Result</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/options-and-errors.md">缺失值与错误处理</a></td></tr>
+<tr><td><code>26_import_alias</code></td><td>Import a helper package</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/packages.md">包与可见性</a></td></tr>
+<tr><td><code>27_public_function</code></td><td>Export a function with pub</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/packages.md">包与可见性</a></td></tr>
+<tr><td><code>28_public_struct</code></td><td>Make a struct constructible across packages</td><td><code>test</code></td><td><a href="https://github.com/snorfyang/moonbitlings/blob/main/guides/packages.md">包与可见性</a></td></tr>
+</tbody>
+</table>
+
 <!-- END GENERATED EXERCISE TABLE -->
 
 ## 难度曲线
