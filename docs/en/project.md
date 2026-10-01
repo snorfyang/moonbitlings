@@ -1,6 +1,6 @@
-# Project internals
+{% include nav.html %}
 
-[Documentation home](index.md) | [简体中文](../project.md)
+# Project internals
 
 ## Verification and metadata
 
@@ -89,6 +89,7 @@ moon fmt --check
 moon check --deny-warn
 moon test --deny-warn
 moon info
+python3 scripts/gen_exercise_docs.py
 git diff --check
 scripts/cli_blackbox.sh
 python3 scripts/check_curriculum.py

@@ -1,6 +1,6 @@
-# Watch 模式
+{% include nav.html %}
 
-[文档首页](index.md) | [English](en/watch-mode.md)
+# Watch 模式
 
 Watch 模式会持续显示当前练习、源码路径、验证状态和总体进度。当 `main.mbt` 或
 `main_test.mbt` 发生变化时，它会自动重新验证。

@@ -1,6 +1,6 @@
-# 项目内部机制
+{% include nav.html %}
 
-[文档首页](index.md) | [English](en/project.md)
+# 项目内部机制
 
 ## 验证与元数据
 
@@ -77,6 +77,7 @@ moon fmt --check
 moon check --deny-warn
 moon test --deny-warn
 moon info
+python3 scripts/gen_exercise_docs.py
 git diff --check
 scripts/cli_blackbox.sh
 python3 scripts/check_curriculum.py

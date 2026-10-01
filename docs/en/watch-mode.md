@@ -1,6 +1,6 @@
-# Watch mode
+{% include nav.html %}
 
-[Documentation home](index.md) | [简体中文](../watch-mode.md)
+# Watch mode
 
 Watch mode keeps the current exercise, source path, verification status, and
 overall progress visible. It also re-verifies the exercise when `main.mbt` or

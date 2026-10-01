@@ -1,6 +1,6 @@
-# CLI reference
+{% include nav.html %}
 
-[Documentation home](index.md) | [简体中文](../cli-reference.md)
+# CLI reference
 
 Commands are currently run from the repository root with:
 

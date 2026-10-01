@@ -1,6 +1,6 @@
-# CLI 参考
+{% include nav.html %}
 
-[文档首页](index.md) | [English](en/cli-reference.md)
+# CLI 参考
 
 目前需要从仓库根目录按以下方式运行命令：
 

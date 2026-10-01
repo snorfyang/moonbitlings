@@ -30,6 +30,9 @@ jobs:
       - name: Regenerate interfaces
         run: moon info
 
+      - name: Regenerate exercise documentation
+        run: python3 scripts/gen_exercise_docs.py
+
       - name: No uncommitted changes
         run: git diff --exit-code
 
