@@ -51,4 +51,4 @@ watch 列表里确认重置后的练习源码。
 ## 我可以用它做自己的课程吗？
 
 可以。课程由 `exercises/manifest.json` 描述，每道练习是一个独立 module。参考
-[参与开发](contributing.md)里的步骤，复制一份 manifest 和维护自己的练习集即可。
+[参与开发](contribute.md)里的步骤，复制一份 manifest 和维护自己的练习集即可。

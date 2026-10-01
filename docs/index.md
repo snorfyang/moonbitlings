@@ -51,7 +51,7 @@ moon run cmd/moonbitlings --
 | [CLI 参考](cli-reference.md) | 全部命令、参数与退出码 |
 | [课程](exercises.md) | 29 道练习按主题索引 |
 | [常见问题](faq.md) | 工具链、平台、进度与排错 |
-| [参与开发](contributing.md) | 本地检查、新增练习、合规 |
+| [参与开发](contribute.md) | 本地检查、新增练习、合规 |
 | [项目内部机制](project.md) | 验证、状态、架构、设计决策与发布 |
 
 ## 边界与声明

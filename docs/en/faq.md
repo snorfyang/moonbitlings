@@ -60,5 +60,5 @@ generated after passing, and exercise source you confirmed resetting in the watc
 ## Can I use it for my own curriculum?
 
 Yes. The curriculum is described by `exercises/manifest.json`, and each exercise is an
-independent module. See the steps in [Contributing](contributing.md); copy a manifest
+independent module. See the steps in [Contributing](contribute.md); copy a manifest
 and maintain your own exercise set.

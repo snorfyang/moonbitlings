@@ -64,7 +64,7 @@ put the exercises in a separate directory, see the local bundle in
 | [CLI reference](cli-reference.md) | All commands, arguments, and exit codes |
 | [Exercises](exercises.md) | The 29 exercises indexed by topic |
 | [FAQ](faq.md) | Toolchain, platforms, progress, and troubleshooting |
-| [Contributing](contributing.md) | Local checks, adding exercises, compliance |
+| [Contributing](contribute.md) | Local checks, adding exercises, compliance |
 | [Project internals](project.md) | Verification, state, architecture, design decisions, and releases |
 
 ## Boundaries and disclaimers
